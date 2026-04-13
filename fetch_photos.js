@@ -1,48 +1,38 @@
 const fs = require('fs');
 
-async function getPhotos() {
-  const sources = [
-    // Sorgente Unsplash (Argomento Auto)
-    'https://unsplash.com/napi/topics/cars/photos?per_page=30',
-    // Sorgente Pixabay (Ricerca diretta)
-    'https://pixabay.com/api/it/images/search/tuning%20car/'
-  ];
+async function getCarPhotos() {
+  const queries = ['tuning+car', 'modified+car', 'stanced+car', 'widebody+car'];
+  const allPhotos = [];
 
-  let results = [];
-
-  for (const url of sources) {
+  for (const query of queries) {
     try {
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'Mozilla/5.0' }
-      });
-      const data = await response.json();
+      // Peschiamo da Unsplash (via API pubblica senza chiave)
+      const res = await fetch(`https://unsplash.com/napi/search/photos?query=${query}&per_page=20`);
+      const data = await res.json();
       
-      // Se è Unsplash
-      if (Array.isArray(data)) {
-        data.forEach(img => {
-          results.push({ url: img.urls.regular, source: 'Unsplash' });
-        });
-      } 
-      // Se è Pixabay
-      else if (data.hits) {
-        data.hits.forEach(img => {
-          results.push({ url: img.largeImageURL, source: 'Pixabay' });
+      if (data.results) {
+        data.results.forEach(img => {
+          // Filtriamo per scartare foto con persone nei tag
+          const tags = img.alt_description?.toLowerCase() || "";
+          if (!tags.includes('person') && !tags.includes('woman') && !tags.includes('man')) {
+            allPhotos.push({
+              url: img.urls.regular,
+              source: 'Unsplash',
+              title: img.alt_description || 'Extreme Tuning'
+            });
+          }
         });
       }
-    } catch (e) {
-      console.log("Errore caricamento fonte");
-    }
+    } catch (e) { console.log("Errore ricerca: " + query); }
   }
 
-  // Se non trova nulla, mettiamo dei link sicuri per sbloccare il file
-  if (results.length === 0) {
-    results = [
-      { url: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2", source: "Backup" },
-      { url: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7", source: "Backup" }
-    ];
-  }
+  // Rimuovi i duplicati
+  const uniquePhotos = [...new Map(allPhotos.map(item => [item.url, item])).values()];
 
-  fs.writeFileSync('gallery.json', JSON.stringify(results, null, 2));
+  if (uniquePhotos.length > 0) {
+    fs.writeFileSync('gallery.json', JSON.stringify(uniquePhotos, null, 2));
+    console.log(`Successo! Trovate ${uniquePhotos.length} foto reali.`);
+  }
 }
 
-getPhotos();
+getCarPhotos();
