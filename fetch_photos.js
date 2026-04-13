@@ -1,46 +1,50 @@
 const fs = require('fs');
 
-async function cacciatoreTitanico() {
-  const keywords = ['tuning+car', 'modified+car', 'stanced', 'jdm+style', 'supercar+tuning', 'widebody+kit', 'drift+car', 'custom+cars+automotive'];
-  let db = [];
-  
-  // 1. Carichiamo le foto che abbiamo già nel file per non perderle
+async function cacciatoreEvoluto() {
+  // Lista query per coprire ogni angolo del tuning
+  const queries = ['tuning+car', 'modified+car', 'stance+nation', 'jdm+culture', 'widebody+kit', 'supercar+custom', 'drift+car', 'slammed+car'];
+  let database = [];
+
+  // Carica archivio esistente per accumulare foto (fino a 20.000)
   if (fs.existsSync('gallery.json')) {
-    try {
-      db = JSON.parse(fs.readFileSync('gallery.json', 'utf8'));
-    } catch (e) { db = []; }
+    try { database = JSON.parse(fs.readFileSync('gallery.json', 'utf8')); } catch (e) { database = []; }
   }
 
-  const newPhotos = [];
-
-  for (const q of keywords) {
+  for (const q of queries) {
     try {
-      // UNPLASH (NAPI)
-      const resUn = await fetch(`https://unsplash.com/napi/search/photos?query=${q}&per_page=50`);
-      const dataUn = await resUn.json();
-      if (dataUn.results) {
-        dataUn.results.forEach(img => {
-          newPhotos.push({
-            url: img.urls.regular,
-            alt: img.alt_description || `Auto Tuning ${q.replace('+', ' ')} 100 Ottani`,
-            source: 'Unsplash'
-          });
+      // Usiamo i feed NAPI di Unsplash che sono i più ricchi e facili da filtrare
+      const response = await fetch(`https://unsplash.com/napi/search/photos?query=${q}&per_page=50`, {
+        headers: { 'User-Agent': 'Mozilla/5.0' }
+      });
+      const data = await response.json();
+
+      if (data.results) {
+        data.results.forEach(img => {
+          const altText = (img.alt_description || img.description || "").toLowerCase();
+          
+          // --- ANALISI E FILTRO ---
+          // Scartiamo tutto ciò che contiene persone o oggetti non pertinenti
+          const blacklist = ['person', 'man', 'woman', 'girl', 'boy', 'model', 'food', 'snack', 'candy'];
+          const isInvalid = blacklist.some(word => altText.includes(word));
+
+          if (img.urls && img.urls.regular && !isInvalid) {
+            database.push({
+              u: img.urls.regular, // 'u' invece di 'url' per risparmiare byte (file più leggero)
+              a: (img.alt_description || `Auto Tuning ${q.replace('+', ' ')}`).substring(0, 100) + " | 100 Ottani Please!™", // ALT per Google
+              s: '100O' // Fonte
+            });
+          }
         });
       }
-
-      // BURST (SHOPIFY) - Scraping leggero
-      const resBurst = await fetch(`https://burst.shopify.com/photos/search?q=${q}`);
-      const html = await resBurst.json(); // Nota: qui usiamo il testo se necessario, ma Unsplash basta per grandi volumi
-    } catch (e) { console.log(`Salto ricerca per ${q}`); }
+    } catch (e) { console.log(`Errore su query ${q}`); }
   }
 
-  // UNIAMO VECCHIE E NUOVE (Niente doppioni)
-  const totalList = [...db, ...newPhotos];
-  const uniqueDB = [...new Map(totalList.map(item => [item.url, item])).values()];
-
-  // Salviamo tutto
-  fs.writeFileSync('gallery.json', JSON.stringify(uniqueDB, null, 2));
-  console.log(`Archivio aggiornato! Totale foto nel database: ${uniqueDB.length}`);
+  // Rimozione doppioni e limite sicurezza
+  const unique = [...new Map(database.map(item => [item.u, item])).values()];
+  
+  // Scrive il JSON finale (molto compatto)
+  fs.writeFileSync('gallery.json', JSON.stringify(unique));
+  console.log(`Database aggiornato: ${unique.length} foto pronte.`);
 }
 
-cacciatoreTitanico();
+cacciatoreEvoluto();
