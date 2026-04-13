@@ -1,19 +1,19 @@
 name: Update Gallery
 on:
   schedule:
-    - cron: '0 0 * * *' # Gira ogni notte alle 24:00
-  workflow_dispatch: # Questo ti permette di farlo partire a mano quando vuoi
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # Versione aggiornata
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Versione aggiornata
         with:
-          node-version: '18'
+          node-version: '24' # Versione più recente
 
       - name: Fetch Photos
         run: node fetch_photos.js
