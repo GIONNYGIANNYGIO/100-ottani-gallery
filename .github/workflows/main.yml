@@ -1,0 +1,27 @@
+name: Update Gallery
+on:
+  schedule:
+    - cron: '0 0 * * *' # Gira ogni notte alle 24:00
+  workflow_dispatch: # Questo ti permette di farlo partire a mano quando vuoi
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Fetch Photos
+        run: node fetch_photos.js
+
+      - name: Save Changes
+        run: |
+          git config --global user.name 'Robot-100Ottani'
+          git config --global user.email 'robot@100ottani.com'
+          git add gallery.json
+          git commit -m "Nuove foto aggiunte automaticamente" || echo "Nessuna modifica"
+          git push
