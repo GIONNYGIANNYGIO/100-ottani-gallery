@@ -1,19 +1,39 @@
-/* contenitore principale */
 body {
   margin: 0;
+  background: #111;
+  font-family: Arial;
+  overflow-x: hidden;
 }
 
-/* wrapper della gallery */
+/* margini richiesti */
 #gallery {
+  column-count: 4;
   column-gap: 10px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding: 0 30px;
 }
 
-/* MOBILE */
+/* tablet */
+@media (max-width: 1024px) {
+  #gallery {
+    column-count: 2;
+  }
+}
+
+/* mobile */
 @media (max-width: 768px) {
   #gallery {
-    padding-left: 15px;
-    padding-right: 15px;
+    column-count: 1;
+    padding: 0 15px;
   }
+}
+
+/* immagini */
+img {
+  width: 100%;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  display: block;
+
+  /* QUESTO ELIMINA I BUCHI */
+  break-inside: avoid;
 }
