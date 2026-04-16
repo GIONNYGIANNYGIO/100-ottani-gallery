@@ -41,7 +41,7 @@
         .bt-full-divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; }
         .bt-editorial-text { font-size: 11px; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; text-align: right; letter-spacing: 1.5px; }
 
-        /* GRID SYSTEM - FIXED MOSAIC */
+        /* GRID SYSTEM - PATTERN FISSO ANTI-BUCO */
         .jdm-ss-mosaic { 
             display: grid; 
             grid-template-columns: repeat(12, 1fr); 
@@ -49,7 +49,7 @@
             gap: 15px; 
         } 
 
-        /* CARD CORE */
+        /* CARD STYLE */
         .jdm-ss-card {
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
@@ -60,7 +60,7 @@
         .jdm-ss-media { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
         .jdm-ss-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
 
-        /* INFO BODY - HOVER ONLY */
+        /* INFO BODY - SOLO HOVER */
         .jdm-ss-body {
             position: absolute; bottom: 0; left: 0; width: 100%;
             padding: 18px; box-sizing: border-box; background: #0a0a0a;
@@ -86,7 +86,7 @@
         .jdm-ss-card:hover .jdm-ss-view-text { color: var(--accent); }
         .jdm-ss-card:hover .jdm-ss-arrow { color: var(--accent); transform: translate(3px, -3px); }
 
-        /* MOSAIC REULES (PATTERN FISSI) */
+        /* REGOLE INCASTRO (Somma sempre 12) */
         .type-a { grid-column: span 8; }
         .type-b { grid-column: span 4; }
         .type-c { grid-column: span 4; grid-row: span 2; }
@@ -117,15 +117,8 @@
     const KEYS = { U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD" };
     let page = 1, fetching = false, counter = 0;
 
-    // Pattern matematico fisso che si ripete ogni 10 card per non lasciare MAI buchi
-    // La somma delle colonne in ogni riga virtuale deve essere sempre 12
-    const patternClasses = [
-        'type-a', 'type-b', // Riga 1: 8 + 4 = 12
-        'type-c', 'type-a', // Riga 2-3: 4 (tall) + 8 = 12
-        'type-b',           // Riga 3: (riempie sotto la 8 della riga 2)
-        'type-b', 'type-d', // Riga 4-5: 4 + 8 (tall) = 12
-        'type-b'            // Riga 5: (riempie sotto la 4 della riga 4)
-    ];
+    // Pattern matematico fisso: garantisce riempimento totale riga per riga
+    const patternClasses = ['type-a', 'type-b', 'type-c', 'type-a', 'type-b', 'type-b', 'type-d', 'type-b'];
 
     function getDynamicTags(text) {
         if(!text) return ['#JDM', '#CORE'];
