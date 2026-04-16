@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 Ottani Please!™ | JDM Car Culture Archive & Visuals</title>
-    <meta name="description" content="Archivio digitale di 100 Ottani Please!™. Visual originali JDM, cultura car tuning e street energy. Esplora la gallery fotografica verificata.">
-    <meta name="keywords" content="JDM, Car Culture, 100 Ottani, Tuning, Street Racing, Automotive Photography">
+    <title>100 Ottani Please!™ | JDM Car Culture Archive</title>
+    <meta name="description" content="Archivio fotografico JDM di 100 Ottani Please!™. Visual originali, street culture e tuning verificato.">
     <meta name="author" content="100 Ottani Please!™">
     
     <style>
@@ -35,7 +34,7 @@
             #ottani-archive-root { padding: 0 15px; }
         }
 
-        /* HEADER DESIGN */
+        /* HEADER */
         .bt-magazine-header { padding-top: 80px; padding-bottom: 50px; display: flex; flex-direction: column; }
         .bt-brand-stack { margin-bottom: 35px; overflow: hidden; }
         .bt-title-main, .bt-title-outline { 
@@ -46,72 +45,67 @@
         .bt-title-outline { color: transparent; -webkit-text-stroke: 1.2px rgba(255, 255, 255, 0.25); margin-top: 4px; }
         .bt-full-divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; }
         .bt-editorial-text { font-size: 11px; line-height: 1.7; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; text-align: right; max-width: 550px; margin-left: auto; letter-spacing: 1.5px; }
-        .bt-editorial-text b { color: var(--accent); font-weight: 800; }
 
-        /* GRID SYSTEM */
-        .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 260px; gap: 15px; width: 100%; } 
+        /* GRID SYSTEM - NO HOLES */
+        .jdm-ss-mosaic { 
+            display: grid; 
+            grid-template-columns: repeat(12, 1fr); 
+            grid-auto-rows: 280px; 
+            gap: 15px; 
+            width: 100%; 
+        } 
 
-        /* CARD CORE */
+        /* CARD STYLE */
         .jdm-ss-card {
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
-            will-change: transform;
         }
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 5; }
 
         .jdm-ss-media { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; transition: 0.5s; }
         .jdm-ss-media img { 
             width: 100%; height: 100%; object-fit: cover; 
-            filter: brightness(0.7) grayscale(0); 
+            filter: brightness(0.75) grayscale(0); 
             transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            backface-visibility: hidden;
         }
 
-        /* INFO BODY - APPEARS ON HOVER */
+        /* INFO BODY - HIDDEN BY DEFAULT */
         .jdm-ss-body {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%;
-            padding: 18px; box-sizing: border-box;
-            background: #0a0a0a;
-            transform: translateY(100%);
-            opacity: 0;
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            padding: 18px; box-sizing: border-box; background: #0a0a0a;
+            transform: translateY(100%); opacity: 0;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            display: flex; flex-direction: column;
-            z-index: 3;
+            display: flex; flex-direction: column; z-index: 3;
         }
 
         .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 9px; color: #555; text-transform: uppercase; margin-bottom: 8px; }
-        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 12px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 11px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 9px; color: #777; text-transform: uppercase; margin: 12px 0 8px 0; }
 
-        /* FOOTER */
-        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); }
+        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
         .jdm-ss-tags { display: flex; gap: 6px; overflow: hidden; }
-        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; white-space: nowrap; }
-        .jdm-ss-action { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; }
+        .jdm-ss-action { display: flex; align-items: center; gap: 6px; }
         .jdm-ss-view-text { font-size: 10px; color: #444; font-weight: 900; }
         .jdm-ss-arrow { color: #444; transition: 0.4s; }
 
-        /* INTERACTION */
+        /* HOVER INTERACTION */
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.03); }
+        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
         .jdm-ss-card:hover .jdm-ss-view-text { color: var(--accent); }
         .jdm-ss-card:hover .jdm-ss-arrow { color: var(--accent); transform: translate(3px, -3px); }
 
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
         .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
-        /* MOSAIC TILES */
-        .jdm-tile-tall { grid-column: span 4; grid-row: span 2; }
-        .jdm-tile-wide { grid-column: span 8; grid-row: span 1; }
-        .jdm-tile-sm   { grid-column: span 4; grid-row: span 1; }
+        /* TILE CLASSES - FIXED SPANS FOR MATHEMATICAL FILL */
+        .w-4 { grid-column: span 4; }
+        .w-8 { grid-column: span 8; }
+        .h-2 { grid-row: span 2; }
 
-        @media (max-width: 1024px) { [class*="jdm-tile-"] { grid-column: span 6 !important; grid-row: span 1 !important; height: 380px; } }
-        @media (max-width: 768px) { 
-            [class*="jdm-tile-"] { grid-column: span 12 !important; height: 450px; } 
-            .jdm-ss-card:active .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        }
+        @media (max-width: 1024px) { [class*="w-"] { grid-column: span 6 !important; grid-row: span 1 !important; height: 380px; } }
+        @media (max-width: 768px) { [class*="w-"] { grid-column: span 12 !important; height: 450px; } }
     </style>
 </head>
 <body>
@@ -136,27 +130,16 @@
     let page = 1, fetching = false, counter = 0;
 
     function getDynamicTags(text) {
-        if(!text) return ['#JDM', '#CORE', '#STREET'];
-        const blacklist = ['a', 'the', 'of', 'in', 'and', 'photo', 'photography', 'image', 'by'];
-        const words = text.toLowerCase().replace(/[^\w\s]/gi, '').split(' ').filter(w => w.length > 2 && !blacklist.includes(w));
+        if(!text) return ['#JDM', '#CORE'];
+        const words = text.toLowerCase().replace(/[^\w\s]/gi, '').split(' ').filter(w => w.length > 3);
         const tags = [...new Set(words)].slice(0, 3).map(w => `#${w.toUpperCase()}`);
-        return tags.length > 0 ? tags : ['#JDM', '#CORE', '#STREET'];
+        return tags.length > 0 ? tags : ['#JDM', '#CORE'];
     }
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-            const img = e.target.querySelector('img');
-            if (e.isIntersecting) {
-                if (img.dataset.src) img.src = img.dataset.src;
-                e.target.style.opacity = 1;
-            } else { img.src = ''; }
-        });
-    }, { rootMargin: '400px' });
 
     async function load() {
         if (fetching) return; fetching = true;
         try {
-            const q = "jdm tuning car street night";
+            const q = "jdm tuning car street night city";
             const res = await Promise.allSettled([
                 fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&client_id=${KEYS.U}`).then(r => r.json()),
                 fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json())
@@ -168,17 +151,14 @@
                     const data = i === 0 ? r.value.results : r.value.photos;
                     data.forEach(item => {
                         const dateObj = new Date(i === 0 ? item.created_at : new Date());
-                        const formattedDate = dateObj.toLocaleDateString('it-IT');
-                        const rawText = i === 0 ? (item.alt_description || item.description) : item.alt;
-                        
                         grid.appendChild(createCard({
                             img: i === 0 ? item.urls.regular : item.src.large,
-                            title: (i === 0 ? (item.alt_description || item.description) : item.alt) || "100 OTTANI JDM ASSET",
+                            title: (i === 0 ? (item.alt_description || item.description) : item.alt) || "JDM VISUAL",
                             author: i === 0 ? item.user.name : item.photographer,
                             source: i === 0 ? "UNSPLASH" : "PEXELS",
                             url: i === 0 ? item.links.html : item.url,
-                            date: formattedDate,
-                            tags: getDynamicTags(rawText)
+                            date: dateObj.toLocaleDateString('it-IT'),
+                            tags: getDynamicTags(i === 0 ? item.alt_description : item.alt)
                         }));
                     });
                 }
@@ -188,18 +168,20 @@
     }
 
     function createCard(d) {
-        // ALTERNANZA MOSAICO RANDOMIZZATA
-        const tileTypes = ['jdm-tile-tall', 'jdm-tile-wide', 'jdm-tile-sm', 'jdm-tile-sm'];
-        const style = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+        // ALGORITMO DI RIEMPIMENTO (Pattern ciclico di 3 card che sommano sempre a 12 colonne)
+        // Card 1: 4 col | Card 2: 8 col | Card 3: 12 col (tall) o ripetizione
+        const pattern = [
+            'w-4 h-2', 'w-8', 'w-4', 'w-4', 'w-8 h-2', 'w-4'
+        ];
+        const style = pattern[counter % pattern.length];
         
         const a = document.createElement('a');
         a.className = `jdm-ss-card ${style}`;
         a.href = d.url; a.target = "_blank";
-        a.style.opacity = 0;
-        a.setAttribute('aria-label', `View ${d.title} by ${d.author}`);
+        a.setAttribute('aria-label', `${d.title} by ${d.author}`);
 
         a.innerHTML = `
-            <div class="jdm-ss-media"><img data-src="${d.img}" src="" alt="${d.title} - 100 Ottani Archive"></div>
+            <div class="jdm-ss-media"><img src="${d.img}" alt="${d.title}" loading="lazy"></div>
             <div class="jdm-ss-body">
                 <div class="jdm-ss-meta-header">
                     <span>SOURCE: ${d.source}</span>
@@ -208,15 +190,13 @@
                 <h2 class="jdm-ss-title">${d.title}</h2>
                 <div class="jdm-ss-info-row">
                     <span>AUTHOR: ${d.author}</span>
-                    <span>STATUS: VERIFIED ARCHIVE</span>
+                    <span>STATUS: VERIFIED</span>
                 </div>
                 <div class="jdm-ss-footer">
-                    <div class="jdm-ss-tags">
-                        ${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}
-                    </div>
+                    <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
                     <div class="jdm-ss-action">
                         <span class="jdm-ss-view-text">VIEW</span>
-                        <svg class="jdm-ss-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <svg class="jdm-ss-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                             <line x1="7" y1="17" x2="17" y2="7"></line>
                             <polyline points="7 7 17 7 17 17"></polyline>
                         </svg>
@@ -226,7 +206,6 @@
             </div>
         `;
         counter++;
-        observer.observe(a);
         return a;
     }
 
