@@ -4,75 +4,58 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- SEO -->
-<title>100 Ottani Gallery - Auto Tuning Reali</title>
-<meta name="description" content="Gallery dinamica di auto tuning reali: JDM, stance, widebody, drift. Contenuto aggiornato automaticamente.">
-<meta name="keywords" content="tuning auto, jdm, stance, drift, widebody, car culture">
-<meta name="robots" content="index, follow">
+<title>100 Ottani Gallery</title>
+<meta name="description" content="Gallery dinamica di auto tuning reali">
 
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
 
 <style>
 
-/* RESET */
+/* BASE */
 body {
     margin:0;
-    background:#0a0a0a;
-    color:#fff;
+    background:transparent;
     font-family:'JetBrains Mono', monospace;
+    color:#fff;
 }
 
-/* HEADER */
-#coremotion-header { padding:0 30px; }
-
-.bt-magazine-header { padding:80px 0 40px; }
-
-.bt-title-main {
-    font-size: clamp(4rem, 10vw, 9rem);
-    font-weight:900;
-}
-
-.bt-title-outline {
-    font-size: clamp(4rem, 10vw, 9rem);
-    -webkit-text-stroke:1px rgba(255,255,255,0.3);
-    color:transparent;
-}
-
-.bt-editorial-text {
-    font-size:11px;
-    text-align:right;
-    color:#666;
+/* CONTAINER */
+.jdm-ss-container {
+    padding:0 30px;
 }
 
 /* GRID */
-.jdm-ss-container { padding:0 30px; }
-
 .jdm-ss-mosaic {
     display:grid;
     grid-template-columns: repeat(12,1fr);
+    grid-auto-rows:250px;
     gap:15px;
 }
 
+/* TILE */
 .jdm-tile-tall { grid-column: span 4; grid-row: span 2; }
 .jdm-tile-wide { grid-column: span 8; }
-.jdm-tile-sm { grid-column: span 4; }
+.jdm-tile-sm   { grid-column: span 4; }
 
 /* CARD */
 .jdm-ss-card {
-    border:1px solid #1a1a1a;
-    text-decoration:none;
+    border:1px solid rgba(255,255,255,0.08);
+    overflow:hidden;
     display:flex;
     flex-direction:column;
-    overflow:hidden;
-    background:#000;
+    position:relative;
+    text-decoration:none;
+    background:transparent;
 }
 
-.jdm-ss-card:hover { border-color:#FFFF00; }
+.jdm-ss-card:hover {
+    border-color:#FFFF00;
+}
 
-/* IMAGE */
+/* IMG */
 .jdm-ss-media {
+    width:100%;
     height:100%;
-    overflow:hidden;
 }
 
 .jdm-ss-media img {
@@ -83,38 +66,32 @@ body {
     transition:0.6s;
 }
 
-/* BODY */
+/* INFO CARD (HOVER) */
 .jdm-ss-body {
+    position:absolute;
+    bottom:0;
+    width:100%;
     padding:15px;
-    height:120px;
-    transition:0.4s;
+    background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    
+    opacity:0;
+    transform:translateY(20px);
+    transition:0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
+/* SHOW ON HOVER */
+.jdm-ss-card:hover .jdm-ss-body {
+    opacity:1;
+    transform:translateY(0);
+}
+
+/* META */
 .jdm-ss-meta-row {
     display:flex;
     justify-content:space-between;
     font-size:10px;
-    color:#555;
-}
-
-.jdm-ss-title {
-    font-size:13px;
-    font-weight:800;
-    margin:5px 0;
-}
-
-/* TAG */
-.jdm-ss-tags-row {
-    display:flex;
-    gap:6px;
-    opacity:0;
-    transition:0.3s;
-}
-
-.jdm-ss-chip {
-    font-size:10px;
-    color:#FFFF00;
-    font-weight:800;
+    color:#aaa;
+    margin-bottom:8px;
 }
 
 /* FOOTER */
@@ -124,29 +101,77 @@ body {
     align-items:center;
 }
 
-.jdm-ss-btn { font-size:10px; color:#555; }
+/* TAG */
+.jdm-ss-tags-row {
+    display:flex;
+    gap:6px;
+}
 
-.jdm-ss-arrow { color:#333; }
+.jdm-ss-chip {
+    font-size:10px;
+    color:#FFFF00;
+    font-weight:800;
+}
 
-/* HOVER */
+/* ACTION */
+.jdm-ss-action {
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.jdm-ss-btn {
+    font-size:10px;
+    color:#777;
+    font-weight:800;
+}
+
+.jdm-ss-arrow {
+    color:#555;
+    transition:0.3s;
+}
+
+/* HOVER EFFECT */
 .jdm-ss-card:hover img {
     transform:scale(1.1);
     filter:brightness(0.3);
 }
 
-.jdm-ss-card:hover .jdm-ss-body {
-    height:180px;
+.jdm-ss-card:hover .jdm-ss-arrow {
+    color:#FFFF00;
+    transform:translate(3px,-3px);
 }
 
-.jdm-ss-card:hover .jdm-ss-tags-row {
-    opacity:1;
+/* BAR */
+.jdm-ss-bar {
+    position:absolute;
+    bottom:0;
+    left:0;
+    height:3px;
+    width:0;
+    background:#FFFF00;
+    transition:0.4s;
+}
+
+.jdm-ss-card:hover .jdm-ss-bar {
+    width:100%;
 }
 
 /* MOBILE */
+@media (max-width:1024px){
+    [class*="jdm-tile-"] {
+        grid-column: span 6 !important;
+        grid-row: span 1 !important;
+    }
+}
+
 @media (max-width:768px){
-    #coremotion-header { padding:0 15px; }
-    .jdm-ss-container { padding:0 15px; }
-    .jdm-ss-mosaic { grid-template-columns:1fr; }
+    .jdm-ss-container {
+        padding:0 15px;
+    }
+    .jdm-ss-mosaic {
+        grid-template-columns:1fr;
+    }
 }
 
 </style>
@@ -154,19 +179,13 @@ body {
 
 <body>
 
-<div id="coremotion-header">
-    <h1 class="bt-title-main">CORE</h1>
-    <h1 class="bt-title-outline">MOTION</h1>
-    <p class="bt-editorial-text">REAL TIME CAR CULTURE</p>
-</div>
-
 <div class="jdm-ss-container">
     <div id="jdm-social-engine" class="jdm-ss-mosaic"></div>
 </div>
 
 <script>
 
-// 🔥 TAG AUTOMATICI REALI
+// TAG AUTOMATICI
 function generateTags(url) {
     url = url.toLowerCase();
     const tags = [];
@@ -189,52 +208,68 @@ async function loadGallery(){
 
     const grid = document.getElementById("jdm-social-engine");
 
-    let counter = 0;
+    let index = 0;
+    const BATCH = 20;
 
-    data.forEach(img => {
+    function renderBatch() {
+        const fragment = document.createDocumentFragment();
 
-        const tags = generateTags(img.url);
-        const date = img.date && img.date !== "Pixabay" && img.date !== "Pexels"
-            ? new Date(img.date).toLocaleDateString()
-            : img.date;
+        for (let i = 0; i < BATCH && index < data.length; i++, index++) {
 
-        const idx = counter % 4;
-        const tile = idx === 0 ? "jdm-tile-tall" : idx === 1 ? "jdm-tile-wide" : "jdm-tile-sm";
+            const img = data[index];
+            const tags = generateTags(img.url);
 
-        const card = document.createElement("a");
-        card.className = `jdm-ss-card ${tile}`;
+            const source = img.date || "";
+            const author = img.author || "Unknown";
 
-        card.innerHTML = `
-            <div class="jdm-ss-media">
-                <img src="${img.url}" alt="auto tuning ${tags.join(", ")}" loading="lazy">
-            </div>
+            const tileType = index % 4 === 0 ? "jdm-tile-tall" :
+                             index % 4 === 1 ? "jdm-tile-wide" : "jdm-tile-sm";
 
-            <div class="jdm-ss-body">
-                <div class="jdm-ss-meta-row">
-                    <span>${img.author || "Unknown"}</span>
-                    <span>${date || ""}</span>
+            const card = document.createElement("a");
+            card.href = img.url;
+            card.target = "_blank";
+            card.className = `jdm-ss-card ${tileType}`;
+
+            card.innerHTML = `
+                <div class="jdm-ss-media">
+                    <img src="${img.url}" loading="lazy" alt="auto tuning ${tags.join(", ")}">
                 </div>
 
-                <div class="jdm-ss-title">
-                    ${tags.join(" / ")}
-                </div>
-
-                <div class="jdm-ss-footer">
-                    <div class="jdm-ss-tags-row">
-                        ${tags.map(t => `<span class="jdm-ss-chip">#${t}</span>`).join("")}
+                <div class="jdm-ss-body">
+                    <div class="jdm-ss-meta-row">
+                        <span>Autore: ${author}</span>
+                        <span>Fonte: ${source}</span>
                     </div>
 
-                    <div>
-                        <span class="jdm-ss-btn">VIEW</span>
-                        <span class="jdm-ss-arrow">↗</span>
-                    </div>
-                </div>
-            </div>
-        `;
+                    <div class="jdm-ss-footer">
+                        <div class="jdm-ss-tags-row">
+                            ${tags.map(t => `<span class="jdm-ss-chip">#${t}</span>`).join("")}
+                        </div>
 
-        grid.appendChild(card);
-        counter++;
-    });
+                        <div class="jdm-ss-action">
+                            <span class="jdm-ss-btn">OPEN</span>
+                            <svg class="jdm-ss-arrow" viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="jdm-ss-bar"></div>
+                </div>
+            `;
+
+            fragment.appendChild(card);
+        }
+
+        grid.appendChild(fragment);
+
+        if (index < data.length) {
+            requestAnimationFrame(renderBatch);
+        }
+    }
+
+    renderBatch();
 }
 
 loadGallery();
