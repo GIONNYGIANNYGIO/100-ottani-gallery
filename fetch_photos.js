@@ -2,7 +2,7 @@ const fs = require("fs");
 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-const PIXABAY_KEY = "INSERISCI_LA_TUA_KEY_QUI";
+const PIXABAY_KEY = "55464526-8c1ed1d759c73669d0c1f38ab";
 
 async function fetchImages() {
   const res = await fetch(
