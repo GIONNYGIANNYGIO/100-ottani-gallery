@@ -7,7 +7,10 @@
 </head>
 <body>
 
-  <h1>🚗 Car Gallery</h1>
+  <!-- LOADER -->
+  <div id="loader"></div>
+
+  <!-- GALLERY -->
   <div id="gallery"></div>
 
   <script>
@@ -16,6 +19,7 @@
       const data = await res.json();
 
       const gallery = document.getElementById("gallery");
+      const loader = document.getElementById("loader");
 
       data.forEach(img => {
         const el = document.createElement("img");
@@ -23,6 +27,8 @@
         el.loading = "lazy";
         gallery.appendChild(el);
       });
+
+      loader.style.display = "none";
     }
 
     loadGallery();
