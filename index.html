@@ -75,7 +75,7 @@
             position: absolute; bottom: 0; left: 0; width: 100%;
             padding: 18px; box-sizing: border-box; background: #0a0a0a;
             transform: translateY(100%); opacity: 0;
-            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             z-index: 3;
         }
 
@@ -88,13 +88,28 @@
         .jdm-ss-tags { display: flex; gap: 6px; overflow: hidden; }
         .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
         
-        /* FRECCIA MINIMAL */
+        /* FRECCIA E ANIMAZIONE AZIONE */
         .jdm-ss-action { font-size: 9px; color: #444; font-weight: 900; display: flex; align-items: center; gap: 4px; transition: 0.3s; }
-        .minimal-arrow { width: 10px; height: 10px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+        .minimal-arrow { 
+            width: 10px; height: 10px; 
+            stroke: currentColor; stroke-width: 3; fill: none; 
+            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
 
+        /* BARRA GIALLA INFERIORE */
+        .jdm-ss-bar { 
+            position: absolute; bottom: 0; left: 0; 
+            width: 0; height: 3px; 
+            background: var(--accent); 
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
+        }
+
+        /* HOVER INTERACTIONS */
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
         .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
         .jdm-ss-card:hover .jdm-ss-action { color: var(--accent); }
+        .jdm-ss-card:hover .minimal-arrow { transform: translate(2px, -2px); }
+        .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
         /* PATTERN RIGIDI */
         .full { grid-column: span 12; }
@@ -131,7 +146,6 @@
     const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
     const patternB = [...patternA].reverse();
 
-    // Funzione per generare 3 tag dal titolo
     function generateTags(title) {
         if (!title) return ['#JDM', '#CORE'];
         const commonWords = ['A', 'THE', 'OF', 'IN', 'WITH', 'AND', 'PHOTO', 'IMAGE'];
@@ -183,19 +197,24 @@
         a.className = `jdm-ss-card ${style}`;
         a.href = d.url; a.target = "_blank";
         
-        // Creazione stringa tag
         const tagsHtml = d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('');
 
         a.innerHTML = `
             <div class="jdm-ss-media"><img src="${d.img}" loading="lazy" decoding="async"></div>
             <div class="jdm-ss-body">
-                <div class="jdm-ss-meta-header"><span>${d.source}</span><span>17/04/2026</span></div>
+                <div class="jdm-ss-meta-header"><span>SOURCE: ${d.source}</span><span>17/04/2026</span></div>
                 <h2 class="jdm-ss-title">${d.title}</h2>
                 <div class="jdm-ss-info-row"><span>AUTHOR: ${d.author}</span><span>STATUS: VERIFIED</span></div>
                 <div class="jdm-ss-footer">
                     <div class="jdm-ss-tags">${tagsHtml}</div>
-                    <div class="jdm-ss-action">VIEW <svg class="minimal-arrow" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></div>
+                    <div class="jdm-ss-action">VIEW 
+                        <svg class="minimal-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="7" y1="17" x2="17" y2="7"></line>
+                            <polyline points="7 7 17 7 17 17"></polyline>
+                        </svg>
+                    </div>
                 </div>
+                <div class="jdm-ss-bar"></div>
             </div>
         `;
         return a;
