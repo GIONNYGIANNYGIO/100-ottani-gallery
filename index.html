@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>100 Octane Gallery - Tuning Cars</title>
-<meta name="description" content="Dynamic gallery of real tuning cars. JDM, drift, stance and street culture.">
+<title>100 Octane Gallery</title>
 
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
 
@@ -44,20 +43,12 @@ body {
     position:relative;
     text-decoration:none;
     display:flex;
-    flex-direction:column;
     background:transparent;
 }
 
-.jdm-ss-card:hover {
-    border-color:#FFFF00;
-}
+.jdm-ss-card:hover { border-color:#FFFF00; }
 
 /* IMAGE */
-.jdm-ss-media {
-    width:100%;
-    height:100%;
-}
-
 .jdm-ss-media img {
     width:100%;
     height:100%;
@@ -66,20 +57,14 @@ body {
     transition:0.6s;
 }
 
-/* OVERLAY INFO */
+/* OVERLAY */
 .jdm-ss-body {
     position:absolute;
     bottom:0;
     width:100%;
     padding:20px;
 
-    background:linear-gradient(
-        to top,
-        rgba(0,0,0,0.95) 0%,
-        rgba(0,0,0,0.85) 40%,
-        rgba(0,0,0,0.0) 100%
-    );
-
+    background:linear-gradient(to top, rgba(0,0,0,0.95), transparent);
     min-height:120px;
 
     display:flex;
@@ -88,10 +73,9 @@ body {
 
     opacity:0;
     transform:translateY(30px);
-    transition:0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    transition:0.4s;
 }
 
-/* SHOW ON HOVER */
 .jdm-ss-card:hover .jdm-ss-body {
     opacity:1;
     transform:translateY(0);
@@ -102,7 +86,6 @@ body {
     display:flex;
     justify-content:space-between;
     flex-wrap:wrap;
-    gap:5px;
     font-size:10px;
     color:#aaa;
 }
@@ -115,7 +98,6 @@ body {
     margin-top:8px;
 }
 
-/* TAGS */
 .jdm-ss-tags-row {
     display:flex;
     gap:6px;
@@ -135,18 +117,11 @@ body {
     gap:6px;
 }
 
-.jdm-ss-btn {
-    font-size:10px;
-    color:#777;
-    font-weight:800;
-}
-
 .jdm-ss-arrow {
     color:#555;
     transition:0.3s;
 }
 
-/* HOVER EFFECT */
 .jdm-ss-card:hover img {
     transform:scale(1.1);
     filter:brightness(0.3);
@@ -157,7 +132,7 @@ body {
     transform:translate(3px,-3px);
 }
 
-/* BOTTOM BAR */
+/* BAR */
 .jdm-ss-bar {
     position:absolute;
     bottom:0;
@@ -173,7 +148,7 @@ body {
 }
 
 /* LOADER */
-.loader-container {
+.loader {
     width:100%;
     display:flex;
     justify-content:center;
@@ -202,12 +177,8 @@ body {
 }
 
 @media (max-width:768px){
-    .jdm-ss-container {
-        padding:0 15px;
-    }
-    .jdm-ss-mosaic {
-        grid-template-columns:1fr;
-    }
+    .jdm-ss-container { padding:0 15px; }
+    .jdm-ss-mosaic { grid-template-columns:1fr; }
 }
 
 </style>
@@ -216,71 +187,80 @@ body {
 <body>
 
 <div class="jdm-ss-container">
-    <div id="jdm-social-engine" class="jdm-ss-mosaic"></div>
+    <div id="grid" class="jdm-ss-mosaic"></div>
 
     <!-- LOADER -->
-    <div id="loader" class="loader-container">
+    <div id="loader" class="loader">
         <div class="spinner"></div>
     </div>
+
+    <!-- TRIGGER -->
+    <div id="trigger" style="height:50px;"></div>
 </div>
 
 <script>
 
-// TAGS
-function generateTags(url) {
+function generateTags(url){
     url = url.toLowerCase();
-    const tags = [];
+    const t = [];
 
-    if(url.includes("jdm")) tags.push("JDM");
-    if(url.includes("drift")) tags.push("DRIFT");
-    if(url.includes("stance")) tags.push("STANCE");
-    if(url.includes("wide")) tags.push("WIDEBODY");
-    if(url.includes("bmw")) tags.push("BMW");
-    if(url.includes("nissan")) tags.push("NISSAN");
+    if(url.includes("jdm")) t.push("JDM");
+    if(url.includes("drift")) t.push("DRIFT");
+    if(url.includes("stance")) t.push("STANCE");
+    if(url.includes("wide")) t.push("WIDEBODY");
 
-    if(tags.length === 0) tags.push("TUNING");
+    if(t.length === 0) t.push("TUNING");
 
-    return tags.slice(0,3);
+    return t.slice(0,3);
 }
 
-async function loadGallery(){
-    const res = await fetch("gallery.json");
-    const data = await res.json();
+let data = [];
+let index = 0;
+const STEP = 20;
+let loading = false;
 
-    const grid = document.getElementById("jdm-social-engine");
+async function init(){
+    const res = await fetch("gallery.json");
+    data = await res.json();
+    loadMore();
+}
+
+function loadMore(){
+    if(loading) return;
+    loading = true;
+
+    const grid = document.getElementById("grid");
     const loader = document.getElementById("loader");
 
-    let index = 0;
-    const BATCH = 20;
+    loader.style.display = "flex";
 
-    function renderBatch() {
+    setTimeout(() => {
+
         const fragment = document.createDocumentFragment();
 
-        for (let i = 0; i < BATCH && index < data.length; i++, index++) {
+        for(let i=0; i<STEP && index < data.length; i++, index++){
 
             const img = data[index];
             const tags = generateTags(img.url);
 
-            const source = img.date || "";
-            const author = img.author || "Unknown";
-
-            const tileType = index % 4 === 0 ? "jdm-tile-tall" :
-                             index % 4 === 1 ? "jdm-tile-wide" : "jdm-tile-sm";
-
             const card = document.createElement("a");
             card.href = img.url;
             card.target = "_blank";
-            card.className = `jdm-ss-card ${tileType}`;
+
+            const tile = index % 4 === 0 ? "jdm-tile-tall" :
+                         index % 4 === 1 ? "jdm-tile-wide" : "jdm-tile-sm";
+
+            card.className = `jdm-ss-card ${tile}`;
 
             card.innerHTML = `
                 <div class="jdm-ss-media">
-                    <img src="${img.url}" loading="lazy" alt="tuning car ${tags.join(", ")}">
+                    <img src="${img.url}" loading="lazy">
                 </div>
 
                 <div class="jdm-ss-body">
                     <div class="jdm-ss-meta-row">
-                        <span>Author: ${author}</span>
-                        <span>Source: ${source}</span>
+                        <span>Author: ${img.author || "Unknown"}</span>
+                        <span>Source: ${img.date || ""}</span>
                     </div>
 
                     <div class="jdm-ss-footer">
@@ -289,7 +269,6 @@ async function loadGallery(){
                         </div>
 
                         <div class="jdm-ss-action">
-                            <span class="jdm-ss-btn">OPEN</span>
                             <svg class="jdm-ss-arrow" viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="3">
                                 <line x1="7" y1="17" x2="17" y2="7"></line>
                                 <polyline points="7 7 17 7 17 17"></polyline>
@@ -306,17 +285,22 @@ async function loadGallery(){
 
         grid.appendChild(fragment);
 
-        if (index < data.length) {
-            requestAnimationFrame(renderBatch);
-        } else {
-            loader.style.display = "none"; // 🔥 hide loader
-        }
-    }
+        loader.style.display = "none";
+        loading = false;
 
-    renderBatch();
+    }, 300); // smooth feel
 }
 
-loadGallery();
+// SCROLL TRIGGER
+const observer = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting && index < data.length){
+        loadMore();
+    }
+});
+
+observer.observe(document.getElementById("trigger"));
+
+init();
 
 </script>
 
