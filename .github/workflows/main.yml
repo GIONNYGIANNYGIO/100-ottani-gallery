@@ -1,27 +1,30 @@
 name: Update Gallery
+
 on:
-  schedule:
-    - cron: '0 0 * * *'
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4 # Versione aggiornata
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4 # Versione aggiornata
-        with:
-          node-version: '24' # Versione più recente
 
-      - name: Fetch Photos
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Run script
         run: node fetch_photos.js
 
-      - name: Save Changes
+      - name: Commit changes
         run: |
-          git config --global user.name 'Robot-100Ottani'
-          git config --global user.email 'robot@100ottani.com'
+          git config --global user.name "bot"
+          git config --global user.email "bot@github.com"
           git add gallery.json
-          git commit -m "Nuove foto aggiunte automaticamente" || echo "Nessuna modifica"
+          git commit -m "Update gallery" || echo "No changes"
           git push
