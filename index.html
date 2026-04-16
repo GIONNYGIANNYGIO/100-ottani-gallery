@@ -2,37 +2,48 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Car Gallery</title>
+  <title>Gallery</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- LOADER -->
-  <div id="loader"></div>
+<div id="loader"></div>
+<div id="gallery"></div>
 
-  <!-- GALLERY -->
-  <div id="gallery"></div>
+<script>
+async function loadGallery() {
+  const res = await fetch("gallery.json");
+  const data = await res.json();
 
-  <script>
-    async function loadGallery() {
-      const res = await fetch("gallery.json");
-      const data = await res.json();
+  const gallery = document.getElementById("gallery");
+  const loader = document.getElementById("loader");
 
-      const gallery = document.getElementById("gallery");
-      const loader = document.getElementById("loader");
+  data.forEach(img => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-      data.forEach(img => {
-        const el = document.createElement("img");
-        el.src = img.url;
-        el.loading = "lazy";
-        gallery.appendChild(el);
-      });
+    const date = img.date && img.date !== "Pixabay" && img.date !== "Pexels"
+      ? new Date(img.date).toLocaleDateString()
+      : img.date;
 
-      loader.style.display = "none";
-    }
+    card.innerHTML = `
+      <img src="${img.url}" loading="lazy">
+      <div class="overlay">
+        <div class="meta">
+          <span>${img.author || "Unknown"}</span>
+          <span>${date || ""}</span>
+        </div>
+      </div>
+    `;
 
-    loadGallery();
-  </script>
+    gallery.appendChild(card);
+  });
+
+  loader.style.display = "none";
+}
+
+loadGallery();
+</script>
 
 </body>
 </html>
