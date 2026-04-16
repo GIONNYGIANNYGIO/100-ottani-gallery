@@ -1,58 +1,83 @@
-const fs = require('fs');
+const PEXELS_KEY = "LA_TUA_PEXELS_KEY";
+const PIXABAY_KEY = "LA_TUA_PIXABAY_KEY";
+const UNSPLASH_KEY = "LA_TUA_UNSPLASH_KEY";
 
-async function cacciatoreEvoluto() {
-  const queries = ['tuning-car', 'modified-supercar', 'stanced-jdm', 'race-car-action'];
-  let grezzo = [];
+const gallery = document.getElementById("gallery");
 
-  for (const q of queries) {
-    // --- FONTE 1: UNSPLASH ---
-    try {
-      const r1 = await fetch(`https://unsplash.com/napi/search/photos?query=${q}&per_page=30`);
-      const j1 = await r1.json();
-      if (j1.results) {
-        j1.results.forEach(img => grezzo.push({
-          url: img.urls.regular,
-          alt: img.alt_description || "Auto Tuning 100 Ottani"
-        }));
-      }
-    } catch (e) { console.log("Errore Unsplash"); }
+const queries = [
+  "jdm car no people",
+  "modified car street empty",
+  "supercar night no people",
+  "stance car parking",
+  "drift car track empty"
+];
 
-    // --- FONTE 2: PEXELS ---
-    try {
-      const r2 = await fetch(`https://www.pexels.com/it-it/api/v3/search/photos?query=${q}&per_page=30`, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-      });
-      const j2 = await r2.json();
-      if (j2.photos) {
-        j2.photos.forEach(img => grezzo.push({
-          url: img.src.large,
-          alt: img.alt || "Auto Tuning 100 Ottani"
-        }));
-      }
-    } catch (e) { console.log("Errore Pexels"); }
-  }
-
-  // --- FILTRAGGIO CATTIVO ---
-  const blacklist = ['food', 'person', 'woman', 'man', 'child', 'interior', 'dashboard', 'office'];
-  
-  const pulito = grezzo.reduce((acc, img) => {
-    const desc = (img.alt || "").toLowerCase();
-    const contieneSchifezze = blacklist.some(p => desc.includes(p));
-    
-    if (!contieneSchifezze && img.url) {
-      // Evita duplicati
-      if (!acc.find(item => item.u === img.url)) {
-        acc.push({
-          u: img.url, 
-          a: desc.substring(0, 80)
-        });
-      }
-    }
-    return acc;
-  }, []);
-
-  fs.writeFileSync('gallery.json', JSON.stringify(pulito));
-  console.log(`Analisi finita. Salvate ${pulito.length} foto.`);
+function randomQuery() {
+  return queries[Math.floor(Math.random() * queries.length)];
 }
 
-cacciatoreEvoluto();
+function isClean(img) {
+  const text = (img.alt || "").toLowerCase();
+  return !text.includes("person") &&
+         !text.includes("man") &&
+         !text.includes("woman");
+}
+
+async function loadImages() {
+  const query = randomQuery();
+  let images = [];
+
+  // PEXELS
+  const pexels = await fetch(
+    `https://api.pexels.com/v1/search?query=${query}&per_page=10`,
+    { headers: { Authorization: PEXELS_KEY } }
+  ).then(res => res.json());
+
+  images.push(...pexels.photos.map(p => ({
+    url: p.src.medium,
+    alt: p.alt
+  })));
+
+  // PIXABAY
+  const pixabay = await fetch(
+    `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${query}&image_type=photo&per_page=10`
+  ).then(res => res.json());
+
+  images.push(...pixabay.hits.map(p => ({
+    url: p.webformatURL,
+    alt: p.tags
+  })));
+
+  // UNSPLASH
+  const unsplash = await fetch(
+    `https://api.unsplash.com/search/photos?query=${query}&per_page=10`,
+    {
+      headers: {
+        Authorization: `Client-ID ${UNSPLASH_KEY}`
+      }
+    }
+  ).then(res => res.json());
+
+  images.push(...unsplash.results.map(p => ({
+    url: p.urls.small,
+    alt: p.alt_description
+  })));
+
+  images = images.filter(isClean);
+
+  images.sort(() => Math.random() - 0.5);
+
+  render(images);
+}
+
+function render(images) {
+  images.forEach(img => {
+    const el = document.createElement("img");
+    el.src = img.url;
+    el.loading = "lazy";
+    gallery.appendChild(el);
+  });
+}
+
+// AVVIO
+loadImages();
