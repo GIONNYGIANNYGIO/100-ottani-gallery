@@ -7,10 +7,26 @@
 </head>
 <body>
 
-  <h1>🚗 Car Tuning Gallery</h1>
-
+  <h1>🚗 Car Gallery</h1>
   <div id="gallery"></div>
 
-  <script src="fetch_photos.js"></script>
+  <script>
+    async function loadGallery() {
+      const res = await fetch("gallery.json");
+      const data = await res.json();
+
+      const gallery = document.getElementById("gallery");
+
+      data.forEach(img => {
+        const el = document.createElement("img");
+        el.src = img.url;
+        el.loading = "lazy";
+        gallery.appendChild(el);
+      });
+    }
+
+    loadGallery();
+  </script>
+
 </body>
 </html>
