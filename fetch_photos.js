@@ -4,40 +4,55 @@ async function cacciatoreEvoluto() {
   const queries = ['tuning-car', 'modified-supercar', 'stanced-jdm', 'race-car-action'];
   let grezzo = [];
 
-  // 1. SCARICO MASSIVO
   for (const q of queries) {
+    // --- FONTE 1: UNSPLASH ---
     try {
-      const r = await fetch(`https://unsplash.com/napi/search/photos?query=${q}&per_page=50`);
-      const j = await r.json();
-      if (j.results) grezzo.push(...j.results);
-    } catch (e) { console.log("Errore scarico"); }
+      const r1 = await fetch(`https://unsplash.com/napi/search/photos?query=${q}&per_page=30`);
+      const j1 = await r1.json();
+      if (j1.results) {
+        j1.results.forEach(img => grezzo.push({
+          url: img.urls.regular,
+          alt: img.alt_description || "Auto Tuning 100 Ottani"
+        }));
+      }
+    } catch (e) { console.log("Errore Unsplash"); }
+
+    // --- FONTE 2: PEXELS ---
+    try {
+      const r2 = await fetch(`https://www.pexels.com/it-it/api/v3/search/photos?query=${q}&per_page=30`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+      });
+      const j2 = await r2.json();
+      if (j2.photos) {
+        j2.photos.forEach(img => grezzo.push({
+          url: img.src.large,
+          alt: img.alt || "Auto Tuning 100 Ottani"
+        }));
+      }
+    } catch (e) { console.log("Errore Pexels"); }
   }
 
-  // 2. FILTRAGGIO INTERNO CATTIVO
-  // Qui decidiamo cosa NON vogliamo vedere assolutamente
-  const blacklist = ['food', 'snack', 'candy', 'chocolate', 'person', 'woman', 'man', 'child', 'inside', 'interior', 'dashboard'];
+  // --- FILTRAGGIO CATTIVO ---
+  const blacklist = ['food', 'person', 'woman', 'man', 'child', 'interior', 'dashboard', 'office'];
   
   const pulito = grezzo.reduce((acc, img) => {
-    const descrizione = (img.alt_description || img.description || "").toLowerCase();
+    const desc = (img.alt || "").toLowerCase();
+    const contieneSchifezze = blacklist.some(p => desc.includes(p));
     
-    // Controlla se la descrizione contiene robaccia della blacklist
-    const contieneSchifezze = blacklist.some(parola => descrizione.includes(parola));
-    
-    // Se è pulita e non l'abbiamo già inserita (per URL unico)
-    if (!contieneSchifezze && img.urls && img.urls.regular) {
-      if (!acc.find(item => item.u === img.urls.regular)) {
+    if (!contieneSchifezze && img.url) {
+      // Evita duplicati
+      if (!acc.find(item => item.u === img.url)) {
         acc.push({
-          u: img.urls.regular, 
-          a: (img.alt_description || "Auto Tuning 100 Ottani").substring(0, 80)
+          u: img.url, 
+          a: desc.substring(0, 80)
         });
       }
     }
     return acc;
   }, []);
 
-  // 3. GENERAZIONE JSON PULITO
   fs.writeFileSync('gallery.json', JSON.stringify(pulito));
-  console.log(`Analisi finita. Scaricate ${grezzo.length}, ma salvate solo ${pulito.length} foto di motori.`);
+  console.log(`Analisi finita. Salvate ${pulito.length} foto.`);
 }
 
 cacciatoreEvoluto();
