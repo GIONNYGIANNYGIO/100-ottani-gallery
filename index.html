@@ -18,6 +18,9 @@
             color: #fff;
             overflow-x: hidden;
             font-family: 'JetBrains Mono', monospace;
+            /* Ottimizzazione rendering */
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
         }
 
         #ottani-archive-root {
@@ -27,63 +30,70 @@
             --accent: #FFFF00;
         }
 
-        /* GRID SYSTEM - RIGHE BLINDATE */
         .jdm-ss-mosaic { 
             display: grid; 
             grid-template-columns: repeat(12, 1fr); 
             grid-auto-rows: 300px;
             gap: 15px;
-            grid-auto-flow: row; /* Impedisce sovrapposizioni strane */
+            grid-auto-flow: row;
         } 
 
         .jdm-ss-card {
-            background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
-            text-decoration: none; display: flex; flex-direction: column;
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
-            grid-row: span 1; /* Forza altezza fissa per riga se non diversamente specificato */
+            background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.08);
+            text-decoration: none; position: relative; overflow: hidden;
+            /* Forza l'uso della GPU */
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            will-change: transform, border-color;
         }
 
-        .jdm-ss-card:hover { border-color: var(--accent); z-index: 10; }
-        .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; background: #000; }
-        .jdm-ss-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: 0.6s; }
+        .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; }
+        
+        /* Immagini fluide ma ottimizzate */
+        .jdm-ss-media img { 
+            width: 100%; height: 100%; 
+            object-fit: cover; 
+            filter: brightness(0.7); 
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), filter 0.6s;
+            will-change: transform, filter;
+        }
 
-        /* INFO BODY - PULITO */
         .jdm-ss-body {
             position: absolute; bottom: 0; left: 0; width: 100%;
             padding: 15px; box-sizing: border-box; background: #0a0a0a;
-            transform: translateY(100%); opacity: 0;
-            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            transform: translateY(101%); opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s;
             z-index: 3;
+            will-change: transform, opacity;
         }
 
-        .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 6px; }
-        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; }
-        .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
-        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
-        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; margin-right: 5px; }
-        .jdm-ss-action { font-size: 9px; color: #444; font-weight: 900; display: flex; align-items: center; gap: 5px; }
-
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); }
-        .jdm-ss-card:hover .jdm-ss-action { color: var(--accent); }
+        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
 
-        /* PATTERN RIGIDI (Somma sempre 12) */
+        /* Pattern Rigidi */
         .full { grid-column: span 12; }
         .wide { grid-column: span 8; }
         .narrow { grid-column: span 4; }
-        .tall { grid-row: span 2; } /* Solo se accompagnata da card che riempiono il lato */
 
         @media (max-width: 1024px) { 
             .jdm-ss-mosaic { grid-auto-rows: 350px; }
-            [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; grid-row: span 1 !important; } 
+            [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } 
         }
+
+        /* Stili testi */
+        .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 6px; }
+        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; }
+        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: 10px; }
+        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; }
+        .jdm-ss-action { font-size: 9px; color: #444; font-weight: 900; }
+        .jdm-ss-card:hover .jdm-ss-action { color: var(--accent); }
     </style>
 </head>
 <body>
 
 <div id="ottani-archive-root">
     <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
-    <div id="jdm-load-more-trigger" style="height: 50px;"></div>
+    <div id="jdm-load-more-trigger" style="height: 20px;"></div>
 </div>
 
 <script>
@@ -91,14 +101,13 @@
     const KEYS = { U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD" };
     let page = 1, fetching = false, counter = 0;
 
-    // Pattern A e B: Ogni riga somma ESATTAMENTE 12.
     const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full'];
     const patternB = ['wide', 'narrow', 'full', 'narrow', 'wide', 'full'];
 
     async function load() {
         if (fetching) return; fetching = true;
         try {
-            const q = "jdm cars tuning street night";
+            const q = "jdm performance cars tuning";
             const res = await Promise.allSettled([
                 fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&client_id=${KEYS.U}`).then(r => r.json()),
                 fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json())
@@ -110,7 +119,7 @@
                     const data = i === 0 ? (r.value.results || []) : (r.value.photos || []);
                     data.forEach(item => {
                         const info = {
-                            img: i === 0 ? item.urls.regular : item.src.large,
+                            img: i === 0 ? item.urls.regular + "&q=75&w=1000" : item.src.large, // Riduce qualità per velocità
                             title: (i === 0 ? (item.alt_description || item.description) : item.alt) || "JDM VISUAL",
                             author: i === 0 ? item.user.name : item.photographer,
                             source: i === 0 ? "UNSPLASH" : "PEXELS",
@@ -125,7 +134,6 @@
     }
 
     function createCard(d) {
-        // Alterna il pattern ogni 6 card per invertire il senso
         const pattern = (Math.floor(counter / 6) % 2 === 0) ? patternA : patternB;
         const style = pattern[counter % 6];
         counter++;
@@ -134,25 +142,31 @@
         a.className = `jdm-ss-card ${style}`;
         a.href = d.url; a.target = "_blank";
         a.innerHTML = `
-            <div class="jdm-ss-media"><img src="${d.img}" loading="lazy"></div>
+            <div class="jdm-ss-media"><img src="${d.img}" loading="lazy" decoding="async"></div>
             <div class="jdm-ss-body">
-                <div class="jdm-ss-meta-header"><span>SOURCE: ${d.source}</span><span>17/04/2026</span></div>
+                <div class="jdm-ss-meta-header"><span>${d.source}</span><span>17/04/26</span></div>
                 <h2 class="jdm-ss-title">${d.title}</h2>
-                <div class="jdm-ss-info-row"><span>AUTHOR: ${d.author}</span><span>STATUS: VERIFIED</span></div>
                 <div class="jdm-ss-footer">
-                    <div class="jdm-ss-tags"><span class="jdm-ss-tag">#JDM</span><span class="jdm-ss-tag">#CULTURE</span></div>
-                    <div class="jdm-ss-action">VIEW <span>↗</span></div>
+                    <span class="jdm-ss-tag">#JDM_CORE</span>
+                    <span class="jdm-ss-action">VIEW ↗</span>
                 </div>
             </div>
         `;
         return a;
     }
 
-    const observer = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); });
+    // Caricamento infinito fluido
+    const observer = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
     observer.observe(document.getElementById('jdm-load-more-trigger'));
     
-    // Messaggio per Fourthwall
-    const sync = () => { window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*'); };
+    // Sync Fourthwall ottimizzato (Debounced)
+    let timeout;
+    const sync = () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+        }, 150);
+    };
     new ResizeObserver(sync).observe(document.body);
     load();
 })();
