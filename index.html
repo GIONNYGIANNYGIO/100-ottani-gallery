@@ -1,148 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>100 Octane Gallery</title>
-
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+<section style="background: transparent; padding: 40px 0; width: 100%;">
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
 
-body{
+body {
     margin:0;
     background:transparent;
     font-family:'JetBrains Mono', monospace;
 }
 
 /* CONTAINER */
-.container{
-    padding:0 30px;
-}
-
-/* MASONRY */
-.masonry{
-    column-count:4;
-    column-gap:15px;
-}
-
-@media (max-width:1024px){
-    .masonry{ column-count:2; }
+.gallery-container {
+    padding: 0 30px;
 }
 
 @media (max-width:768px){
-    .container{ padding:0 15px; }
-    .masonry{ column-count:1; }
+    .gallery-container{
+        padding:0 15px;
+    }
 }
+
+/* MASONRY */
+.gallery {
+    column-count: 4;
+    column-gap: 15px;
+}
+
+@media (max-width:1200px){ .gallery{ column-count:3; } }
+@media (max-width:768px){ .gallery{ column-count:2; } }
+@media (max-width:480px){ .gallery{ column-count:1; } }
 
 /* CARD */
-.card{
-    break-inside:avoid;
-    margin-bottom:15px;
-    position:relative;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,0.08);
-    transition:0.4s;
+.card {
+    position: relative;
+    margin-bottom: 15px;
+    break-inside: avoid;
+    overflow: hidden;
+    cursor: pointer;
 }
 
-.card:hover{
-    border-color:#FFFF00;
-}
-
-/* IMG */
-.card img{
+.card img {
     width:100%;
     display:block;
-    filter:brightness(0.6);
     transition:0.6s;
 }
 
-.card:hover img{
-    transform:scale(1.1);
-    filter:brightness(0.3);
-}
-
-/* OVERLAY */
-.overlay{
+/* OVERLAY (like your code) */
+.overlay {
     position:absolute;
     bottom:0;
+    left:0;
     width:100%;
+    background:#0a0a0a;
+    color:white;
     padding:20px;
-
-    background:linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-
-    opacity:0;
-    transform:translateY(30px);
-    transition:0.4s;
+    transform: translateY(100%);
+    transition:0.5s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.card:hover .overlay{
-    opacity:1;
-    transform:translateY(0);
+/* HOVER EFFECT */
+.card:hover img {
+    transform:scale(1.08);
+    filter:brightness(0.4);
 }
 
-/* META */
-.meta{
+.card:hover .overlay {
+    transform: translateY(0);
+}
+
+/* TEXT */
+.meta {
     font-size:10px;
-    color:#aaa;
-    margin-bottom:8px;
+    color:#666;
+    margin-bottom:10px;
 }
 
-/* FOOTER */
-.footer{
+.title {
+    font-size:14px;
+    font-weight:800;
+    margin-bottom:10px;
+    text-transform:uppercase;
+}
+
+.desc {
+    font-size:11px;
+    color:#aaa;
+    margin-bottom:12px;
+}
+
+/* TAGS + ARROW */
+.footer {
     display:flex;
     justify-content:space-between;
     align-items:center;
 }
 
-/* TAGS */
-.tags{
+.tags {
     display:flex;
     gap:6px;
-    flex-wrap:wrap;
 }
 
-.tag{
+.tag {
     font-size:10px;
     color:#FFFF00;
     font-weight:800;
 }
 
-/* ARROW */
-.arrow{
-    color:#555;
+.arrow {
+    width:16px;
+    height:16px;
+    border:2px solid #333;
+    transform: rotate(45deg);
     transition:0.3s;
 }
 
-.card:hover .arrow{
-    color:#FFFF00;
-    transform:translate(3px,-3px);
-}
-
-/* BAR */
-.bar{
-    position:absolute;
-    bottom:0;
-    left:0;
-    height:3px;
-    width:0;
-    background:#FFFF00;
-    transition:0.4s;
-}
-
-.card:hover .bar{
-    width:100%;
+.card:hover .arrow {
+    border-color:#FFFF00;
+    transform: rotate(45deg) translate(3px,-3px);
 }
 
 /* LOADER */
-.loader{
+.loader {
     display:flex;
     justify-content:center;
     padding:40px 0;
 }
 
-.spinner{
+.spinner {
     width:30px;
     height:30px;
     border:3px solid rgba(255,255,255,0.1);
@@ -151,113 +135,101 @@ body{
     animation:spin 0.8s linear infinite;
 }
 
-@keyframes spin{
-    to{ transform:rotate(360deg); }
+@keyframes spin {
+    to { transform:rotate(360deg); }
 }
 
+/* EXTRA SPACE BOTTOM */
+.bottom-space {
+    height:150px;
+}
 </style>
-</head>
 
-<body>
-
-<div class="container">
-    <div id="grid" class="masonry"></div>
-
-    <div id="loader" class="loader">
-        <div class="spinner"></div>
-    </div>
-
-    <div id="trigger" style="height:50px;"></div>
+<div class="gallery-container">
+    <div id="gallery" class="gallery"></div>
+    <div id="loader" class="loader"><div class="spinner"></div></div>
+    <div id="trigger"></div>
+    <div class="bottom-space"></div>
 </div>
 
 <script>
+const MAX_IMAGES = 200;
+const BATCH = 20;
 
-let data = [];
-let index = 0;
-const STEP = 20;
+let page = 1;
 let loading = false;
+let totalLoaded = 0;
 
-function tags(url){
-    url=url.toLowerCase();
-    const t=[];
-    if(url.includes("jdm")) t.push("JDM");
-    if(url.includes("drift")) t.push("DRIFT");
-    if(url.includes("stance")) t.push("STANCE");
-    if(t.length===0) t.push("TUNING");
-    return t;
-}
+function createCard(img){
+    const el = document.createElement("a");
+    el.className = "card";
+    el.href = img.link;
+    el.target = "_blank";
 
-async function init(){
-    const res = await fetch("gallery.json");
-    data = await res.json();
-    load();
-}
-
-function load(){
-    if(loading) return;
-    loading=true;
-
-    const grid=document.getElementById("grid");
-    const loader=document.getElementById("loader");
-
-    loader.style.display="flex";
-
-    setTimeout(()=>{
-
-        for(let i=0;i<STEP && index<data.length;i++,index++){
-
-            const img=data[index];
-
-            const el=document.createElement("a");
-            el.href=img.url;
-            el.target="_blank";
-            el.className="card";
-
-            el.innerHTML=`
-                <img src="${img.url}" loading="lazy">
-
-                <div class="overlay">
-                    <div class="meta">
-                        Author: ${img.author || "Unknown"}<br>
-                        Source: ${img.source || ""}
-                    </div>
-
-                    <div class="footer">
-                        <div class="tags">
-                            ${tags(img.url).map(t=>`<span class="tag">#${t}</span>`).join("")}
-                        </div>
-
-                        <svg class="arrow" viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="3">
-                            <line x1="7" y1="17" x2="17" y2="7"></line>
-                            <polyline points="7 7 17 7 17 17"></polyline>
-                        </svg>
-                    </div>
-
-                    <div class="bar"></div>
+    el.innerHTML = `
+        <img src="${img.url}" alt="${img.title}" loading="lazy">
+        <div class="overlay">
+            <div class="meta">Author: ${img.author}</div>
+            <div class="meta">Source: ${img.source}</div>
+            <div class="title">${img.title}</div>
+            <div class="desc">${img.desc}</div>
+            <div class="footer">
+                <div class="tags">
+                    ${img.tags.map(t=>`<span class="tag">#${t}</span>`).join("")}
                 </div>
-            `;
-
-            grid.appendChild(el);
-        }
-
-        loader.style.display="none";
-        loading=false;
-
-    },300);
+                <div class="arrow"></div>
+            </div>
+        </div>
+    `;
+    return el;
 }
 
-/* SCROLL */
-const observer=new IntersectionObserver(e=>{
-    if(e[0].isIntersecting && index<data.length){
-        load();
+async function fetchImages(){
+    if(loading || totalLoaded >= MAX_IMAGES) return;
+    loading = true;
+    document.getElementById("loader").style.display="flex";
+
+    try{
+        const res = await fetch(`https://api.unsplash.com/search/photos?page=${page}&per_page=${BATCH}&query=car tuning real modified cars jdm street car meet&client_id=YOUR_API_KEY`);
+        const data = await res.json();
+
+        data.results.forEach(img=>{
+            if(totalLoaded >= MAX_IMAGES) return;
+
+            const card = createCard({
+                url: img.urls.small,
+                title: img.alt_description || "Tuned Car",
+                desc: "Real modified street car",
+                author: img.user.name,
+                source: "Unsplash",
+                link: img.links.html,
+                tags: ["JDM","TUNING","REAL"]
+            });
+
+            document.getElementById("gallery").appendChild(card);
+            totalLoaded++;
+        });
+
+        page++;
+
+    } catch(e){
+        console.log(e);
     }
-});
+
+    loading = false;
+    document.getElementById("loader").style.display="none";
+}
+
+/* SCROLL LOAD */
+const observer = new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){
+        fetchImages();
+    }
+},{threshold:0.1});
 
 observer.observe(document.getElementById("trigger"));
 
-init();
-
+fetchImages();
 </script>
 
-</body>
-</html>
+</section>
