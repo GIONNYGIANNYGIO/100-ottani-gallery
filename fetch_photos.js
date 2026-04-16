@@ -1,6 +1,6 @@
-const PEXELS_KEY = "LA_TUA_PEXELS_KEY";
-const PIXABAY_KEY = "LA_TUA_PIXABAY_KEY";
-const UNSPLASH_KEY = "LA_TUA_UNSPLASH_KEY";
+const PEXELS_KEY = "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD";
+const PIXABAY_KEY = "55464526-8c1ed1d759c73669d0c1f38ab";
+const UNSPLASH_KEY = "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA";
 
 const gallery = document.getElementById("gallery");
 
