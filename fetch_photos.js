@@ -6,44 +6,61 @@ const PIXABAY_KEY = "55464526-8c1ed1d759c73669d0c1f38ab";
 const PEXELS_KEY = "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD";
 const UNSPLASH_KEY = "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA";
 
-// 🔍 QUERY
+// 🎯 QUERY SOLO TUNING REALI
 const queries = [
-  "car parked empty",
-  "supercar street empty",
-  "jdm car parking",
-  "modified car night",
-  "car studio isolated"
+  "jdm car modified",
+  "stance car real",
+  "tuning car street",
+  "modified car real life",
+  "widebody car real",
+  "drift car real",
+  "lowered car stance"
 ];
 
 function randomQuery() {
   return queries[Math.floor(Math.random() * queries.length)];
 }
 
-// 🚫 FILTRO NO PERSONE
+// 🚫 NO PERSONE
 function isClean(text) {
   if (!text) return true;
-
   text = text.toLowerCase();
 
   const banned = [
-    "person", "people", "man", "woman",
-    "girl", "boy", "driver", "crowd", "human"
+    "person","people","man","woman","girl","boy","driver","crowd","human"
   ];
 
   return !banned.some(word => text.includes(word));
 }
 
-// 🚗 FILTRO AUTO
-function isCarRelevant(text) {
+// ❌ NO FAKE / AI / CONCEPT
+function isRealCar(text) {
   if (!text) return false;
+  text = text.toLowerCase();
 
+  const banned = [
+    "render","3d","illustration","concept","prototype",
+    "futuristic","ai","generated","cyberpunk",
+    "virtual","game","forza","gran turismo"
+  ];
+
+  return !banned.some(word => text.includes(word));
+}
+
+// 🔥 SOLO TUNING
+function isTuning(text) {
+  if (!text) return false;
   text = text.toLowerCase();
 
   const good = [
-    "car", "supercar", "vehicle", "automobile", "sports"
+    "modified","tuning","stance","lowered","widebody","drift","jdm"
   ];
 
   return good.some(word => text.includes(word));
+}
+
+function isValid(text) {
+  return isClean(text) && isRealCar(text) && isTuning(text);
 }
 
 async function fetchImages() {
@@ -52,12 +69,12 @@ async function fetchImages() {
 
   // 🟡 PIXABAY
   const pixabayRes = await fetch(
-    `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${query}&image_type=photo&per_page=20`
+    `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${query}&category=transportation&image_type=photo&per_page=20`
   );
   const pixabay = await pixabayRes.json();
 
   images.push(...pixabay.hits
-    .filter(p => isClean(p.tags) && isCarRelevant(p.tags))
+    .filter(p => isValid(p.tags))
     .map(p => ({ url: p.webformatURL }))
   );
 
@@ -69,8 +86,8 @@ async function fetchImages() {
   const pexels = await pexelsRes.json();
 
   images.push(...pexels.photos
-    .filter(p => isClean(p.alt) && isCarRelevant(p.alt))
-    .map(p => ({ url: p.src.medium }))
+    .filter(p => isValid(p.alt))
+    .map(p => ({ url: p.src.large }))
   );
 
   // 🔵 UNSPLASH
@@ -85,22 +102,22 @@ async function fetchImages() {
   const unsplash = await unsplashRes.json();
 
   images.push(...unsplash.results
-    .filter(p => isClean(p.alt_description) && isCarRelevant(p.alt_description))
-    .map(p => ({ url: p.urls.small }))
+    .filter(p => isValid(p.alt_description))
+    .map(p => ({ url: p.urls.regular }))
   );
 
-  // 🔁 RIMUOVE DUPLICATI
+  // 🔁 REMOVE DUPLICATES
   const unique = new Map();
   images.forEach(img => unique.set(img.url, img));
-  const finalImages = [...unique.values()];
+  let finalImages = [...unique.values()];
 
   // 🎲 RANDOM
   finalImages.sort(() => Math.random() - 0.5);
 
-  // 💾 SALVA
+  // 💾 SAVE
   fs.writeFileSync("gallery.json", JSON.stringify(finalImages, null, 2));
 
-  console.log("Gallery aggiornata:", finalImages.length, "immagini");
+  console.log("Gallery aggiornata:", finalImages.length);
 }
 
 fetchImages();
