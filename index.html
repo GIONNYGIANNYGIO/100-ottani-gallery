@@ -1,235 +1,264 @@
-<section style="background: transparent; padding: 40px 0; width: 100%;">
+<section style="padding:40px 0; width:100%; background:transparent;">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
-
-body {
-    margin:0;
-    background:transparent;
-    font-family:'JetBrains Mono', monospace;
-}
-
-/* CONTAINER */
 .gallery-container {
-    padding: 0 30px;
+  padding: 0 30px;
 }
-
 @media (max-width:768px){
-    .gallery-container{
-        padding:0 15px;
-    }
+  .gallery-container { padding: 0 15px; }
 }
 
-/* MASONRY */
+/* MOSAIC */
 .gallery {
-    column-count: 4;
-    column-gap: 15px;
+  column-count: 4;
+  column-gap: 15px;
 }
+@media (max-width:1024px){ .gallery { column-count:2; } }
+@media (max-width:768px){ .gallery { column-count:1; } }
 
-@media (max-width:1200px){ .gallery{ column-count:3; } }
-@media (max-width:768px){ .gallery{ column-count:2; } }
-@media (max-width:480px){ .gallery{ column-count:1; } }
-
-/* CARD */
 .card {
-    position: relative;
-    margin-bottom: 15px;
-    break-inside: avoid;
-    overflow: hidden;
-    cursor: pointer;
+  break-inside: avoid;
+  margin-bottom:15px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
 }
 
+/* IMAGE */
 .card img {
-    width:100%;
-    display:block;
-    transition:0.6s;
+  width:100%;
+  display:block;
+  transition:0.6s;
+  filter:brightness(0.85);
 }
-
-/* OVERLAY (like your code) */
-.overlay {
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:100%;
-    background:#0a0a0a;
-    color:white;
-    padding:20px;
-    transform: translateY(100%);
-    transition:0.5s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-/* HOVER EFFECT */
 .card:hover img {
-    transform:scale(1.08);
-    filter:brightness(0.4);
+  transform:scale(1.05);
+  filter:brightness(0.4);
 }
 
+/* OVERLAY */
+.overlay {
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  padding:20px;
+  opacity:0;
+  transition:0.4s;
+  background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+}
 .card:hover .overlay {
-    transform: translateY(0);
+  opacity:1;
 }
 
 /* TEXT */
 .meta {
-    font-size:10px;
-    color:#666;
-    margin-bottom:10px;
+  font-size:11px;
+  color:#aaa;
+  margin-bottom:5px;
 }
-
 .title {
-    font-size:14px;
-    font-weight:800;
-    margin-bottom:10px;
-    text-transform:uppercase;
+  font-size:14px;
+  font-weight:800;
+  color:#fff;
+  margin-bottom:10px;
 }
-
-.desc {
-    font-size:11px;
-    color:#aaa;
-    margin-bottom:12px;
-}
-
-/* TAGS + ARROW */
-.footer {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
 .tags {
-    display:flex;
-    gap:6px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
 }
-
 .tag {
-    font-size:10px;
-    color:#FFFF00;
-    font-weight:800;
+  font-size:10px;
+  color:#FFFF00;
+  font-weight:900;
 }
 
+/* ARROW */
 .arrow {
-    width:16px;
-    height:16px;
-    border:2px solid #333;
-    transform: rotate(45deg);
-    transition:0.3s;
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  color:#FFFF00;
+  font-size:18px;
+  transition:0.3s;
 }
-
 .card:hover .arrow {
-    border-color:#FFFF00;
-    transform: rotate(45deg) translate(3px,-3px);
+  transform:translate(5px,-5px);
 }
 
 /* LOADER */
 .loader {
-    display:flex;
-    justify-content:center;
-    padding:40px 0;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:40px 0;
 }
-
 .spinner {
-    width:30px;
-    height:30px;
-    border:3px solid rgba(255,255,255,0.1);
-    border-top-color:#FFFF00;
-    border-radius:50%;
-    animation:spin 0.8s linear infinite;
+  width:30px;
+  height:30px;
+  border:3px solid rgba(255,255,255,0.1);
+  border-top-color:#FFFF00;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
 }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-@keyframes spin {
-    to { transform:rotate(360deg); }
-}
-
-/* EXTRA SPACE BOTTOM */
-.bottom-space {
-    height:150px;
+.spacer {
+  height:120px;
 }
 </style>
 
 <div class="gallery-container">
-    <div id="gallery" class="gallery"></div>
-    <div id="loader" class="loader"><div class="spinner"></div></div>
-    <div id="trigger"></div>
-    <div class="bottom-space"></div>
+  <div id="gallery" class="gallery"></div>
+
+  <div id="loader" class="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="trigger" class="spacer"></div>
 </div>
 
 <script>
-const MAX_IMAGES = 200;
-const BATCH = 20;
+const UNSPLASH_KEY = "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA";
+const PEXELS_KEY = "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD";
+const PIXABAY_KEY = "55464526-8c1ed1d759c73669d0c1f38ab";
 
 let page = 1;
 let loading = false;
 let totalLoaded = 0;
+const MAX = 200;
 
-function createCard(img){
-    const el = document.createElement("a");
-    el.className = "card";
-    el.href = img.link;
-    el.target = "_blank";
-
-    el.innerHTML = `
-        <img src="${img.url}" alt="${img.title}" loading="lazy">
-        <div class="overlay">
-            <div class="meta">Author: ${img.author}</div>
-            <div class="meta">Source: ${img.source}</div>
-            <div class="title">${img.title}</div>
-            <div class="desc">${img.desc}</div>
-            <div class="footer">
-                <div class="tags">
-                    ${img.tags.map(t=>`<span class="tag">#${t}</span>`).join("")}
-                </div>
-                <div class="arrow"></div>
-            </div>
-        </div>
-    `;
-    return el;
+/* FILTER */
+function isValid(title){
+  if(!title) return false;
+  const t = title.toLowerCase();
+  const bad = ["render","concept","3d","illustration","game","drawing"];
+  return !bad.some(w => t.includes(w));
 }
 
-async function fetchImages(){
-    if(loading || totalLoaded >= MAX_IMAGES) return;
-    loading = true;
-    document.getElementById("loader").style.display="flex";
-
-    try{
-        const res = await fetch(`https://api.unsplash.com/search/photos?page=${page}&per_page=${BATCH}&query=car tuning real modified cars jdm street car meet&client_id=1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA`);
-        const data = await res.json();
-
-        data.results.forEach(img=>{
-            if(totalLoaded >= MAX_IMAGES) return;
-
-            const card = createCard({
-                url: img.urls.small,
-                title: img.alt_description || "Tuned Car",
-                desc: "Real modified street car",
-                author: img.user.name,
-                source: "Unsplash",
-                link: img.links.html,
-                tags: ["JDM","TUNING","REAL"]
-            });
-
-            document.getElementById("gallery").appendChild(card);
-            totalLoaded++;
-        });
-
-        page++;
-
-    } catch(e){
-        console.log(e);
-    }
-
-    loading = false;
-    document.getElementById("loader").style.display="none";
+/* TAGS */
+function getTags(text){
+  if(!text) return ["JDM","TUNING"];
+  return text.split(" ").slice(0,3).map(t => t.toUpperCase());
 }
 
-/* SCROLL LOAD */
+/* CARD */
+function createCard(img, title, author, source, link){
+  const div = document.createElement("a");
+  div.className = "card";
+  div.href = link;
+  div.target = "_blank";
+
+  div.innerHTML = `
+    <img src="${img}" alt="${title}" loading="lazy">
+    <div class="overlay">
+      <div class="meta">Author: ${author || "Unknown"}</div>
+      <div class="meta">Source: ${source}</div>
+      <div class="title">${title || "Tuning Car"}</div>
+      <div class="tags">
+        ${getTags(title).map(t=>`<span class="tag">#${t}</span>`).join("")}
+      </div>
+    </div>
+    <div class="arrow">↗</div>
+  `;
+
+  document.getElementById("gallery").appendChild(div);
+}
+
+/* UNSPLASH */
+async function fetchUnsplash(){
+  const url = `https://api.unsplash.com/search/photos?page=${page}&query=car tuning jdm modified&client_id=${UNSPLASH_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  data.results.forEach(img=>{
+    if(totalLoaded>=MAX) return;
+    if(!isValid(img.alt_description)) return;
+
+    createCard(
+      img.urls.small,
+      img.alt_description,
+      img.user.name,
+      "Unsplash",
+      img.links.html
+    );
+    totalLoaded++;
+  });
+}
+
+/* PEXELS */
+async function fetchPexels(){
+  const res = await fetch(`https://api.pexels.com/v1/search?query=car tuning jdm&per_page=20&page=${page}`,{
+    headers:{ Authorization: PEXELS_KEY }
+  });
+  const data = await res.json();
+
+  data.photos.forEach(img=>{
+    if(totalLoaded>=MAX) return;
+    if(!isValid(img.alt)) return;
+
+    createCard(
+      img.src.medium,
+      img.alt,
+      img.photographer,
+      "Pexels",
+      img.url
+    );
+    totalLoaded++;
+  });
+}
+
+/* PIXABAY */
+async function fetchPixabay(){
+  const res = await fetch(`https://pixabay.com/api/?key=${PIXABAY_KEY}&q=car+tuning+jdm&image_type=photo&page=${page}&per_page=20`);
+  const data = await res.json();
+
+  data.hits.forEach(img=>{
+    if(totalLoaded>=MAX) return;
+    if(!isValid(img.tags)) return;
+
+    createCard(
+      img.webformatURL,
+      img.tags,
+      img.user,
+      "Pixabay",
+      img.pageURL
+    );
+    totalLoaded++;
+  });
+}
+
+/* LOAD */
+async function load(){
+  if(loading || totalLoaded>=MAX) return;
+  loading = true;
+
+  document.getElementById("loader").style.display="flex";
+
+  await Promise.all([
+    fetchUnsplash(),
+    fetchPexels(),
+    fetchPixabay()
+  ]);
+
+  page++;
+  loading = false;
+
+  document.getElementById("loader").style.display="none";
+}
+
+/* SCROLL */
 const observer = new IntersectionObserver(entries=>{
-    if(entries[0].isIntersecting){
-        fetchImages();
-    }
-},{threshold:0.1});
+  if(entries[0].isIntersecting){
+    load();
+  }
+});
 
 observer.observe(document.getElementById("trigger"));
 
-fetchImages();
+/* INIT */
+load();
 </script>
 
 </section>
