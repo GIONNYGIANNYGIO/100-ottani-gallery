@@ -1,12 +1,8 @@
 body {
   background: #111;
   color: white;
-  font-family: Arial;
   text-align: center;
-}
-
-h1 {
-  margin: 20px;
+  font-family: Arial;
 }
 
 #gallery {
@@ -18,10 +14,5 @@ h1 {
 img {
   width: 100%;
   margin-bottom: 10px;
-  border-radius: 12px;
-  transition: transform 0.3s;
-}
-
-img:hover {
-  transform: scale(1.03);
+  border-radius: 10px;
 }
