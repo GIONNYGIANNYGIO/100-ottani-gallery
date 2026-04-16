@@ -52,19 +52,25 @@
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
+            will-change: transform; /* Ottimizzazione performance */
         }
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 5; }
 
         .jdm-ss-media { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; transition: 0.5s; }
-        .jdm-ss-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: 0.8s cubic-bezier(0.19, 1, 0.22, 1); }
+        .jdm-ss-media img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            filter: brightness(0.7) grayscale(0); 
+            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            backface-visibility: hidden;
+        }
 
-        /* BODY - NASCOSTO DI BASE */
+        /* BODY - INFO SCHEDA */
         .jdm-ss-body {
             position: absolute;
             bottom: 0; left: 0; width: 100%;
             padding: 18px; box-sizing: border-box;
             background: #0a0a0a;
-            transform: translateY(100%); /* Spostato fuori */
+            transform: translateY(100%);
             opacity: 0;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             display: flex; flex-direction: column;
@@ -83,9 +89,12 @@
         .jdm-ss-view-text { font-size: 10px; color: #444; font-weight: 900; }
         .jdm-ss-arrow { color: #444; transition: 0.4s; }
 
-        /* HOVER EFFECTS */
+        /* HOVER EFFECTS - CAMBIO BLUR -> GRAYSCALE */
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        .jdm-ss-card:hover img { filter: brightness(0.3) blur(3px); transform: scale(1.05); }
+        .jdm-ss-card:hover img { 
+            filter: brightness(0.3) grayscale(1); /* EFFETTO LEGGERO E VELOCE */
+            transform: scale(1.03); 
+        }
         .jdm-ss-card:hover .jdm-ss-view-text { color: var(--accent); }
         .jdm-ss-card:hover .jdm-ss-arrow { color: var(--accent); transform: translate(3px, -3px); }
 
@@ -100,7 +109,6 @@
         @media (max-width: 1024px) { [class*="jdm-tile-"] { grid-column: span 6 !important; grid-row: span 1 !important; height: 380px; } }
         @media (max-width: 768px) { 
             [class*="jdm-tile-"] { grid-column: span 12 !important; height: 450px; } 
-            /* Su mobile rendiamo la scheda visibile al tocco senza hover */
             .jdm-ss-card:active .jdm-ss-body { transform: translateY(0); opacity: 1; }
         }
     </style>
