@@ -102,18 +102,29 @@ async function fetchImages() {
 
   // 🔁 merge con vecchio
   let existing = [];
-  if (fs.existsSync("gallery.json")) {
-    existing = JSON.parse(fs.readFileSync("gallery.json"));
-  }
 
-  const all = [...existing, ...images];
+if (fs.existsSync("gallery.json")) {
+  existing = JSON.parse(fs.readFileSync("gallery.json"));
+}
 
-  const unique = new Map();
-  all.forEach(img => unique.set(img.url, img));
+// 🔥 NUOVE PRIME (importante)
+const all = [...images, ...existing];
 
-  const finalImages = [...unique.values()].sort(() => Math.random() - 0.5);
+// 🔁 dedup
+const unique = new Map();
+all.forEach(img => unique.set(img.url, img));
 
-  fs.writeFileSync("gallery.json", JSON.stringify(finalImages, null, 2));
+let finalImages = [...unique.values()];
+
+// 🔀 shuffle (feed dinamico)
+finalImages.sort(() => Math.random() - 0.5);
+
+// 🔥 limite
+const MAX = 200;
+finalImages = finalImages.slice(0, MAX);
+
+// 💾 salva
+fs.writeFileSync("gallery.json", JSON.stringify(finalImages, null, 2));
 
   console.log("Gallery aggiornata:", finalImages.length);
 }
