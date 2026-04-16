@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 Ottani Please!™ - Archive</title>
+    <title>100 Ottani Please!™ | JDM Car Culture Archive & Visuals</title>
+    <meta name="description" content="Archivio digitale di 100 Ottani Please!™. Visual originali JDM, cultura car tuning e street energy. Esplora la gallery fotografica verificata.">
+    <meta name="keywords" content="JDM, Car Culture, 100 Ottani, Tuning, Street Racing, Automotive Photography">
+    <meta name="author" content="100 Ottani Please!™">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
         @font-face {
@@ -31,7 +35,7 @@
             #ottani-archive-root { padding: 0 15px; }
         }
 
-        /* HEADER */
+        /* HEADER DESIGN */
         .bt-magazine-header { padding-top: 80px; padding-bottom: 50px; display: flex; flex-direction: column; }
         .bt-brand-stack { margin-bottom: 35px; overflow: hidden; }
         .bt-title-main, .bt-title-outline { 
@@ -44,15 +48,15 @@
         .bt-editorial-text { font-size: 11px; line-height: 1.7; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; text-align: right; max-width: 550px; margin-left: auto; letter-spacing: 1.5px; }
         .bt-editorial-text b { color: var(--accent); font-weight: 800; }
 
-        /* GRID */
+        /* GRID SYSTEM */
         .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 260px; gap: 15px; width: 100%; } 
 
-        /* CARD */
+        /* CARD CORE */
         .jdm-ss-card {
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
-            will-change: transform; /* Ottimizzazione performance */
+            will-change: transform;
         }
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 5; }
 
@@ -64,7 +68,7 @@
             backface-visibility: hidden;
         }
 
-        /* BODY - INFO SCHEDA */
+        /* INFO BODY - APPEARS ON HOVER */
         .jdm-ss-body {
             position: absolute;
             bottom: 0; left: 0; width: 100%;
@@ -89,19 +93,16 @@
         .jdm-ss-view-text { font-size: 10px; color: #444; font-weight: 900; }
         .jdm-ss-arrow { color: #444; transition: 0.4s; }
 
-        /* HOVER EFFECTS - CAMBIO BLUR -> GRAYSCALE */
+        /* INTERACTION */
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        .jdm-ss-card:hover img { 
-            filter: brightness(0.3) grayscale(1); /* EFFETTO LEGGERO E VELOCE */
-            transform: scale(1.03); 
-        }
+        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.03); }
         .jdm-ss-card:hover .jdm-ss-view-text { color: var(--accent); }
         .jdm-ss-card:hover .jdm-ss-arrow { color: var(--accent); transform: translate(3px, -3px); }
 
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
         .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
-        /* TILES */
+        /* MOSAIC TILES */
         .jdm-tile-tall { grid-column: span 4; grid-row: span 2; }
         .jdm-tile-wide { grid-column: span 8; grid-row: span 1; }
         .jdm-tile-sm   { grid-column: span 4; grid-row: span 1; }
@@ -125,7 +126,7 @@
         <p class="bt-editorial-text">REAL-TIME <b>JDM VISUALS</b>, ARCHIVING GLOBAL <b>CAR CULTURE</b> THROUGH CONTINUOUS <b>DIGITAL MOTION</b>.</p>
     </header>
 
-    <div class="jdm-ss-mosaic" id="jdm-engine-grid"></div>
+    <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
     <div id="jdm-load-more-trigger" style="height: 100px;"></div>
 </div>
 
@@ -172,7 +173,7 @@
                         
                         grid.appendChild(createCard({
                             img: i === 0 ? item.urls.regular : item.src.large,
-                            title: (i === 0 ? item.alt_description : item.alt) || "JDM ASSET",
+                            title: (i === 0 ? (item.alt_description || item.description) : item.alt) || "100 OTTANI JDM ASSET",
                             author: i === 0 ? item.user.name : item.photographer,
                             source: i === 0 ? "UNSPLASH" : "PEXELS",
                             url: i === 0 ? item.links.html : item.url,
@@ -187,21 +188,24 @@
     }
 
     function createCard(d) {
-        const idx = counter % 4;
-        const style = (idx === 0) ? 'jdm-tile-tall' : (idx === 1) ? 'jdm-tile-wide' : 'jdm-tile-sm';
+        // ALTERNANZA MOSAICO RANDOMIZZATA
+        const tileTypes = ['jdm-tile-tall', 'jdm-tile-wide', 'jdm-tile-sm', 'jdm-tile-sm'];
+        const style = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+        
         const a = document.createElement('a');
         a.className = `jdm-ss-card ${style}`;
         a.href = d.url; a.target = "_blank";
         a.style.opacity = 0;
-        
+        a.setAttribute('aria-label', `View ${d.title} by ${d.author}`);
+
         a.innerHTML = `
-            <div class="jdm-ss-media"><img data-src="${d.img}" src=""></div>
+            <div class="jdm-ss-media"><img data-src="${d.img}" src="" alt="${d.title} - 100 Ottani Archive"></div>
             <div class="jdm-ss-body">
                 <div class="jdm-ss-meta-header">
                     <span>SOURCE: ${d.source}</span>
                     <span>${d.date}</span>
                 </div>
-                <h3 class="jdm-ss-title">${d.title}</h3>
+                <h2 class="jdm-ss-title">${d.title}</h2>
                 <div class="jdm-ss-info-row">
                     <span>AUTHOR: ${d.author}</span>
                     <span>STATUS: VERIFIED ARCHIVE</span>
