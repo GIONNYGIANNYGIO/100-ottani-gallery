@@ -41,7 +41,7 @@
         .bt-full-divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; }
         .bt-editorial-text { font-size: 11px; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; text-align: right; letter-spacing: 1.5px; }
 
-        /* GRID SYSTEM - PATTERN FISSO ANTI-BUCO */
+        /* GRID SYSTEM - INVERSE MOSAIC */
         .jdm-ss-mosaic { 
             display: grid; 
             grid-template-columns: repeat(12, 1fr); 
@@ -49,7 +49,7 @@
             gap: 15px; 
         } 
 
-        /* CARD STYLE */
+        /* CARD CORE */
         .jdm-ss-card {
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
@@ -57,10 +57,17 @@
         }
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 5; }
 
-        .jdm-ss-media { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        .jdm-ss-media { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
         .jdm-ss-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
 
-        /* INFO BODY - SOLO HOVER */
+        /* PLACEHOLDER LOGO STYLE */
+        .jdm-ss-card.placeholder .jdm-ss-media img {
+            width: 60%; height: auto; object-fit: contain; filter: brightness(1) grayscale(0); opacity: 0.3; transition: 0.4s;
+        }
+        .jdm-ss-card.placeholder:hover .jdm-ss-media img { opacity: 1; filter: brightness(1) grayscale(0) drop-shadow(0 0 10px var(--accent)); }
+        .jdm-ss-card.placeholder .jdm-ss-body { display: none; } /* Niente info su hover per il logo */
+
+        /* INFO BODY - HOVER ONLY */
         .jdm-ss-body {
             position: absolute; bottom: 0; left: 0; width: 100%;
             padding: 18px; box-sizing: border-box; background: #0a0a0a;
@@ -81,19 +88,18 @@
         .jdm-ss-arrow { color: #444; transition: 0.4s; }
 
         /* INTERACTION */
-        .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
-        .jdm-ss-card:hover .jdm-ss-view-text { color: var(--accent); }
-        .jdm-ss-card:hover .jdm-ss-arrow { color: var(--accent); transform: translate(3px, -3px); }
+        .jdm-ss-card:not(.placeholder):hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
+        .jdm-ss-card:not(.placeholder):hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
+        .jdm-ss-card:not(.placeholder):hover .jdm-ss-view-text { color: var(--accent); }
+        .jdm-ss-card:not(.placeholder):hover .jdm-ss-arrow { color: var(--accent); transform: translate(3px, -3px); }
 
-        /* REGOLE INCASTRO (Somma sempre 12) */
-        .type-a { grid-column: span 8; }
-        .type-b { grid-column: span 4; }
-        .type-c { grid-column: span 4; grid-row: span 2; }
-        .type-d { grid-column: span 8; grid-row: span 2; }
+        /* TILE RULES (Somma sempre 12) */
+        .w-4 { grid-column: span 4; }
+        .w-8 { grid-column: span 8; }
+        .h-2 { grid-row: span 2; }
 
-        @media (max-width: 1024px) { [class*="type-"] { grid-column: span 6 !important; grid-row: span 1 !important; height: 380px; } }
-        @media (max-width: 768px) { [class*="type-"] { grid-column: span 12 !important; height: 450px; } }
+        @media (max-width: 1024px) { [class*="w-"] { grid-column: span 6 !important; grid-row: span 1 !important; height: 380px; } }
+        @media (max-width: 768px) { [class*="w-"] { grid-column: span 12 !important; height: 450px; } }
     </style>
 </head>
 <body>
@@ -115,10 +121,16 @@
 <script>
 (function() {
     const KEYS = { U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD" };
+    const LOGO_URL = "https://storage.googleapis.com/popshopprod-shop-renderer-creators-assets/resources/23ad37f5-45b3-4dc4-9426-5d201b2f196e/0950c64e268df85a6b42232434d1ff5b_537545e882c5.png";
     let page = 1, fetching = false, counter = 0;
 
-    // Pattern matematico fisso: garantisce riempimento totale riga per riga
-    const patternClasses = ['type-a', 'type-b', 'type-c', 'type-a', 'type-b', 'type-b', 'type-d', 'type-b'];
+    // PATTERN A (Normale) e PATTERN B (Inverso speculare)
+    // 'p' indica una card placeholder col logo
+    const patternA = ['w-4 h-2', 'w-8', 'w-4', 'p w-4', 'w-8 h-2', 'w-4', 'w-4', 'w-8'];
+    const patternB = ['w-8', 'w-4 h-2', 'p w-4', 'w-4', 'w-4', 'w-8 h-2', 'w-8', 'w-4'];
+    
+    // Alterniamo i pattern ogni 16 card (8+8) per un mosaico inverso
+    let currentPattern = patternA;
 
     function getDynamicTags(text) {
         if(!text) return ['#JDM', '#CORE'];
@@ -132,7 +144,7 @@
             const q = "jdm tuning car street night city";
             const res = await Promise.allSettled([
                 fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&client_id=${KEYS.U}`).then(r => r.json()),
-                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json())
+                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=16&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json())
             ]);
 
             const grid = document.getElementById('jdm-engine-grid');
@@ -158,31 +170,43 @@
     }
 
     function createCard(d) {
-        const style = patternClasses[counter % patternClasses.length];
+        // Gestione alternanza pattern
+        if (counter > 0 && counter % 16 === 0) {
+            currentPattern = (currentPattern === patternA) ? patternB : patternA;
+        }
+        
+        const rawStyle = currentPattern[counter % currentPattern.length];
+        const isPlaceholder = rawStyle.includes('p ');
+        const style = rawStyle.replace('p ', '');
         counter++;
 
         const a = document.createElement('a');
-        a.className = `jdm-ss-card ${style}`;
-        a.href = d.url; a.target = "_blank";
-
-        a.innerHTML = `
-            <div class="jdm-ss-media"><img src="${d.img}" alt="${d.title}" loading="lazy"></div>
-            <div class="jdm-ss-body">
-                <div class="jdm-ss-meta-header"><span>SOURCE: ${d.source}</span><span>${d.date}</span></div>
-                <h2 class="jdm-ss-title">${d.title}</h2>
-                <div class="jdm-ss-info-row"><span>AUTHOR: ${d.author}</span><span>STATUS: VERIFIED</span></div>
-                <div class="jdm-ss-footer">
-                    <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
-                    <div class="jdm-ss-action">
-                        <span class="jdm-ss-view-text">VIEW</span>
-                        <svg class="jdm-ss-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                            <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
-                        </svg>
+        a.className = `jdm-ss-card ${style} ${isPlaceholder ? 'placeholder' : ''}`;
+        
+        if (isPlaceholder) {
+            a.href = "#"; // Il logo non porta a link esterni
+            a.innerHTML = `<div class="jdm-ss-media"><img src="${LOGO_URL}" alt="100 Ottani Logo" loading="lazy"></div>`;
+        } else {
+            a.href = d.url; a.target = "_blank";
+            a.innerHTML = `
+                <div class="jdm-ss-media"><img src="${d.img}" alt="${d.title}" loading="lazy"></div>
+                <div class="jdm-ss-body">
+                    <div class="jdm-ss-meta-header"><span>SOURCE: ${d.source}</span><span>${d.date}</span></div>
+                    <h2 class="jdm-ss-title">${d.title}</h2>
+                    <div class="jdm-ss-info-row"><span>AUTHOR: ${d.author}</span><span>STATUS: VERIFIED</span></div>
+                    <div class="jdm-ss-footer">
+                        <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
+                        <div class="jdm-ss-action">
+                            <span class="jdm-ss-view-text">VIEW</span>
+                            <svg class="jdm-ss-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="jdm-ss-bar"></div>
-        `;
+                <div class="jdm-ss-bar"></div>
+            `;
+        }
         return a;
     }
 
