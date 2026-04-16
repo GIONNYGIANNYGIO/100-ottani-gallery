@@ -1,48 +1,244 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Gallery</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- SEO -->
+<title>100 Ottani Gallery - Auto Tuning Reali</title>
+<meta name="description" content="Gallery dinamica di auto tuning reali: JDM, stance, widebody, drift. Contenuto aggiornato automaticamente.">
+<meta name="keywords" content="tuning auto, jdm, stance, drift, widebody, car culture">
+<meta name="robots" content="index, follow">
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+
+<style>
+
+/* RESET */
+body {
+    margin:0;
+    background:#0a0a0a;
+    color:#fff;
+    font-family:'JetBrains Mono', monospace;
+}
+
+/* HEADER */
+#coremotion-header { padding:0 30px; }
+
+.bt-magazine-header { padding:80px 0 40px; }
+
+.bt-title-main {
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight:900;
+}
+
+.bt-title-outline {
+    font-size: clamp(4rem, 10vw, 9rem);
+    -webkit-text-stroke:1px rgba(255,255,255,0.3);
+    color:transparent;
+}
+
+.bt-editorial-text {
+    font-size:11px;
+    text-align:right;
+    color:#666;
+}
+
+/* GRID */
+.jdm-ss-container { padding:0 30px; }
+
+.jdm-ss-mosaic {
+    display:grid;
+    grid-template-columns: repeat(12,1fr);
+    gap:15px;
+}
+
+.jdm-tile-tall { grid-column: span 4; grid-row: span 2; }
+.jdm-tile-wide { grid-column: span 8; }
+.jdm-tile-sm { grid-column: span 4; }
+
+/* CARD */
+.jdm-ss-card {
+    border:1px solid #1a1a1a;
+    text-decoration:none;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:#000;
+}
+
+.jdm-ss-card:hover { border-color:#FFFF00; }
+
+/* IMAGE */
+.jdm-ss-media {
+    height:100%;
+    overflow:hidden;
+}
+
+.jdm-ss-media img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:brightness(0.6);
+    transition:0.6s;
+}
+
+/* BODY */
+.jdm-ss-body {
+    padding:15px;
+    height:120px;
+    transition:0.4s;
+}
+
+.jdm-ss-meta-row {
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:#555;
+}
+
+.jdm-ss-title {
+    font-size:13px;
+    font-weight:800;
+    margin:5px 0;
+}
+
+/* TAG */
+.jdm-ss-tags-row {
+    display:flex;
+    gap:6px;
+    opacity:0;
+    transition:0.3s;
+}
+
+.jdm-ss-chip {
+    font-size:10px;
+    color:#FFFF00;
+    font-weight:800;
+}
+
+/* FOOTER */
+.jdm-ss-footer {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.jdm-ss-btn { font-size:10px; color:#555; }
+
+.jdm-ss-arrow { color:#333; }
+
+/* HOVER */
+.jdm-ss-card:hover img {
+    transform:scale(1.1);
+    filter:brightness(0.3);
+}
+
+.jdm-ss-card:hover .jdm-ss-body {
+    height:180px;
+}
+
+.jdm-ss-card:hover .jdm-ss-tags-row {
+    opacity:1;
+}
+
+/* MOBILE */
+@media (max-width:768px){
+    #coremotion-header { padding:0 15px; }
+    .jdm-ss-container { padding:0 15px; }
+    .jdm-ss-mosaic { grid-template-columns:1fr; }
+}
+
+</style>
 </head>
+
 <body>
 
-<div id="loader"></div>
-<div id="gallery"></div>
+<div id="coremotion-header">
+    <h1 class="bt-title-main">CORE</h1>
+    <h1 class="bt-title-outline">MOTION</h1>
+    <p class="bt-editorial-text">REAL TIME CAR CULTURE</p>
+</div>
+
+<div class="jdm-ss-container">
+    <div id="jdm-social-engine" class="jdm-ss-mosaic"></div>
+</div>
 
 <script>
-async function loadGallery() {
-  const res = await fetch("gallery.json");
-  const data = await res.json();
 
-  const gallery = document.getElementById("gallery");
-  const loader = document.getElementById("loader");
+// 🔥 TAG AUTOMATICI REALI
+function generateTags(url) {
+    url = url.toLowerCase();
+    const tags = [];
 
-  data.forEach(img => {
-    const card = document.createElement("div");
-    card.className = "card";
+    if(url.includes("jdm")) tags.push("JDM");
+    if(url.includes("drift")) tags.push("DRIFT");
+    if(url.includes("stance")) tags.push("STANCE");
+    if(url.includes("wide")) tags.push("WIDEBODY");
+    if(url.includes("bmw")) tags.push("BMW");
+    if(url.includes("nissan")) tags.push("NISSAN");
 
-    const date = img.date && img.date !== "Pixabay" && img.date !== "Pexels"
-      ? new Date(img.date).toLocaleDateString()
-      : img.date;
+    if(tags.length === 0) tags.push("TUNING");
 
-    card.innerHTML = `
-      <img src="${img.url}" loading="lazy">
-      <div class="overlay">
-        <div class="meta">
-          <span>${img.author || "Unknown"}</span>
-          <span>${date || ""}</span>
-        </div>
-      </div>
-    `;
+    return tags.slice(0,3);
+}
 
-    gallery.appendChild(card);
-  });
+async function loadGallery(){
+    const res = await fetch("gallery.json");
+    const data = await res.json();
 
-  loader.style.display = "none";
+    const grid = document.getElementById("jdm-social-engine");
+
+    let counter = 0;
+
+    data.forEach(img => {
+
+        const tags = generateTags(img.url);
+        const date = img.date && img.date !== "Pixabay" && img.date !== "Pexels"
+            ? new Date(img.date).toLocaleDateString()
+            : img.date;
+
+        const idx = counter % 4;
+        const tile = idx === 0 ? "jdm-tile-tall" : idx === 1 ? "jdm-tile-wide" : "jdm-tile-sm";
+
+        const card = document.createElement("a");
+        card.className = `jdm-ss-card ${tile}`;
+
+        card.innerHTML = `
+            <div class="jdm-ss-media">
+                <img src="${img.url}" alt="auto tuning ${tags.join(", ")}" loading="lazy">
+            </div>
+
+            <div class="jdm-ss-body">
+                <div class="jdm-ss-meta-row">
+                    <span>${img.author || "Unknown"}</span>
+                    <span>${date || ""}</span>
+                </div>
+
+                <div class="jdm-ss-title">
+                    ${tags.join(" / ")}
+                </div>
+
+                <div class="jdm-ss-footer">
+                    <div class="jdm-ss-tags-row">
+                        ${tags.map(t => `<span class="jdm-ss-chip">#${t}</span>`).join("")}
+                    </div>
+
+                    <div>
+                        <span class="jdm-ss-btn">VIEW</span>
+                        <span class="jdm-ss-arrow">↗</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        grid.appendChild(card);
+        counter++;
+    });
 }
 
 loadGallery();
+
 </script>
 
 </body>
