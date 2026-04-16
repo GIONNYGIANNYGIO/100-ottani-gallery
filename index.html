@@ -4,378 +4,174 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>100 Ottani Please!™ - Archive</title>
-    
     <style>
-        /* --- IMPORTAZIONE FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
-
         @font-face {
             font-family: 'Monument Extended';
             src: url('https://fonts.cdnfonts.com/s/19595/MonumentExtended-Ultrabold.woff');
             font-weight: 800;
         }
 
-        /* --- RESET & TRASPARENZA TOTALE --- */
+        /* RESET & TRASPARENZA */
         html, body {
-            margin: 0;
-            padding: 0;
-            background: transparent !important; /* Rimuove lo stacco di colore */
+            margin: 0; padding: 0;
+            background: transparent !important;
             color: #fff;
             overflow-x: hidden;
             font-family: 'JetBrains Mono', monospace;
         }
 
+        /* MARGINI RICHIESTI: 30px Desktop / 15px Mobile */
         #ottani-archive-root {
             width: 100%;
-            background: transparent !important;
-        }
-
-        /* --- HEADER STYLES --- */
-        #coremotion-header {
-            --bt-neon: #FFFF00;
             padding: 0 30px;
+            box-sizing: border-box;
         }
 
-        .bt-magazine-header { 
-            padding-top: 60px;
-            padding-bottom: 50px;
-            display: flex; 
-            flex-direction: column;
+        @media (max-width: 768px) {
+            #ottani-archive-root { padding: 0 15px; }
         }
 
-        .bt-brand-stack { 
-            width: 100%; 
-            margin-bottom: 40px; 
-            overflow: hidden;
-        }
-
+        /* HEADER */
+        .bt-magazine-header { padding-top: 60px; padding-bottom: 50px; display: flex; flex-direction: column; }
         .bt-title-main, .bt-title-outline { 
             font-family: 'Monument Extended', sans-serif !important;
-            font-size: clamp(4rem, 10vw, 9rem); 
-            font-weight: 900; 
-            line-height: 0.85; 
-            margin: 0; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            display: block;
-            white-space: nowrap;
+            font-size: clamp(3rem, 10vw, 9rem); font-weight: 900; line-height: 0.85; margin: 0; text-transform: uppercase;
         }
+        .bt-title-outline { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3); }
+        .bt-editorial-text { font-size: 11px; text-align: right; max-width: 520px; margin-left: auto; color: rgba(255,255,255,0.5); }
+        .bt-editorial-text b { color: #FFFF00; }
 
-        .bt-title-main { color: #ffffff; }
-        .bt-title-outline { 
-            color: transparent; 
-            -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3); 
-            margin-top: 5px;
-        }
-
-        .bt-full-divider { 
-            width: 100%; 
-            height: 1px; 
-            background: rgba(255, 255, 255, 0.1); 
-            margin-bottom: 30px; 
-        }
-
-        .bt-editorial-text {
-            font-family: 'JetBrains Mono', monospace !important;
-            font-size: 11px; 
-            line-height: 1.8; 
-            color: rgba(255, 255, 255, 0.5); 
-            text-transform: uppercase; 
-            text-align: right;
-            max-width: 520px; 
-            margin-left: auto;
-            letter-spacing: 2px;
-        }
-
-        .bt-editorial-text b { color: var(--bt-neon); font-weight: 800; }
-
-        /* --- GRID & CARDS --- */
-        .jdm-ss-container { width: 100%; padding: 0 30px; box-sizing: border-box; } 
-        .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 250px; gap: 15px; width: 100%; } 
+        /* GRID */
+        .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 250px; gap: 15px; width: 100%; }
         
-        .jdm-tile-tall { grid-column: span 4; grid-row: span 2; } 
-        .jdm-tile-wide { grid-column: span 8; grid-row: span 1; } 
-        .jdm-tile-sm   { grid-column: span 4; grid-row: span 1; } 
-
-        .jdm-ss-card { 
-            background: rgba(10, 10, 10, 0.9); /* Sfondo card leggermente opaco */
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            text-decoration: none; 
-            display: flex; 
-            flex-direction: column; 
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
-            position: relative; 
-            overflow: hidden; 
-            height: 100%; 
-        } 
-        
-        .jdm-ss-card:hover { border-color: #FFFF00; z-index: 10; }
-
-        .jdm-ss-media { 
-            position: relative; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background: #000; 
-            flex-grow: 1; 
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
-        } 
-        
-        .jdm-ss-media img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            filter: brightness(0.6); 
-            transition: 0.8s cubic-bezier(0.19, 1, 0.22, 1); 
-        } 
-
-        .jdm-ss-tags-top { position: absolute; top: 12px; left: 12px; display: flex; gap: 5px; z-index: 2; } 
-        .jdm-ss-new { font-family: 'JetBrains Mono', monospace; font-size: 9px; background: #FFFF00; color: #000; padding: 2px 8px; font-weight: 900; }
-
-        /* --- SCHEDA INFO (BODY) --- */
-        .jdm-ss-body { 
-            padding: 20px; 
-            background: #0a0a0a; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            height: 110px; /* Altezza base */
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
-            font-family: 'JetBrains Mono', monospace; 
-        } 
-
-        .jdm-ss-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .jdm-ss-mono-meta { font-size: 9px; color: #666; font-weight: 500; text-transform: uppercase; }
-
-        .jdm-ss-title { 
-            font-family: 'Monument Extended', sans-serif !important; 
-            font-size: 13px; 
-            font-weight: 800; 
-            color: #fff; 
-            margin: 0; 
-            text-transform: uppercase; 
-            line-height: 1.2; 
-            display: -webkit-box; 
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical; 
-            overflow: hidden; 
-        } 
-
-        .jdm-ss-desc { 
-            font-size: 10px; 
-            color: #888; 
-            line-height: 1.5; 
-            max-height: 0; 
-            opacity: 0; 
-            overflow: hidden; 
-            transition: 0.4s; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 4px;
-            text-transform: uppercase;
+        /* CARD DESIGN */
+        .jdm-ss-card {
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none; display: flex; flex-direction: column;
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            position: relative; overflow: hidden; height: 100%;
+            opacity: 0; transform: translateY(20px);
         }
+        .jdm-ss-card.loaded { opacity: 1; transform: translateY(0); }
+        .jdm-ss-card:hover { border-color: #FFFF00; }
+
+        .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; background: #000; flex-grow: 1; transition: 0.5s; }
+        .jdm-ss-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); transition: 0.8s; }
+
+        .jdm-ss-body { padding: 20px; background: #0a0a0a; height: 110px; transition: 0.5s; display: flex; flex-direction: column; }
+        .jdm-ss-meta-row { display: flex; justify-content: space-between; font-size: 9px; color: #666; margin-bottom: 8px; }
+        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 12px; color: #fff; margin: 0; text-transform: uppercase; }
+
+        /* DETTAGLI HOVER */
+        .jdm-ss-desc { font-size: 10px; color: #888; max-height: 0; opacity: 0; overflow: hidden; transition: 0.4s; text-transform: uppercase; }
         .jdm-ss-desc strong { color: #FFFF00; }
 
-        .jdm-ss-tags-row { display: flex; gap: 8px; opacity: 0; transition: 0.4s; }
-        .jdm-ss-chip { font-size: 9px; color: #FFFF00; font-weight: 900; }
+        .jdm-ss-card:hover .jdm-ss-media { height: 40%; flex-grow: 0; }
+        .jdm-ss-card:hover .jdm-ss-body { height: 60%; }
+        .jdm-ss-card:hover .jdm-ss-desc { max-height: 120px; opacity: 1; margin: 10px 0; }
+        .jdm-ss-card:hover img { filter: brightness(0.3) blur(2px); }
 
-        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; } 
-        .jdm-ss-action { display: flex; align-items: center; gap: 8px; }
-        .jdm-ss-btn { font-size: 10px; color: #555; font-weight: 900; transition: 0.3s; } 
-        .jdm-ss-arrow { color: #555; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
-        .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 4px; background: #FFFF00; transition: 0.5s; } 
-
-        /* --- HOVER LOGIC CORRETTA PER ORIZZONTALI --- */
-        /* Impediamo che il corpo copra tutto: l'immagine si rimpicciolisce ma resta visibile al 40% */
-        .jdm-ss-card:hover .jdm-ss-media { flex-grow: 0.4; height: 40%; }
-        .jdm-ss-card:hover img { filter: brightness(0.3) scale(1.05); } 
-        
-        .jdm-ss-card:hover .jdm-ss-body { 
-            height: 60%; /* Si espande ma lascia spazio sopra */
-            background: #0d0d0d; 
-        } 
-        
-        .jdm-ss-card:hover .jdm-ss-desc { max-height: 120px; opacity: 1; margin: 15px 0; }
-        .jdm-ss-card:hover .jdm-ss-tags-row { opacity: 1; }
-        .jdm-ss-card:hover .jdm-ss-bar { width: 100%; } 
+        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .jdm-ss-btn { font-size: 10px; color: #555; font-weight: 900; }
         .jdm-ss-card:hover .jdm-ss-btn { color: #FFFF00; }
-        .jdm-ss-card:hover .jdm-ss-arrow { color: #FFFF00; transform: translate(4px, -4px); }
+        .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: #FFFF00; transition: 0.5s; }
+        .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
-        /* --- LOADER & RESPONSIVE --- */
-        .jdm-loader-container { width: 100%; display: none; justify-content: center; padding: 40px 0; }
-        .jdm-loader-container.active { display: flex; }
-        .jdm-spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #FFFF00; border-radius: 50%; animation: jdm-spin 0.8s linear infinite; }
-        @keyframes jdm-spin { to { transform: rotate(360deg); } }
+        /* TILES */
+        .jdm-tile-tall { grid-column: span 4; grid-row: span 2; }
+        .jdm-tile-wide { grid-column: span 8; grid-row: span 1; }
+        .jdm-tile-sm   { grid-column: span 4; grid-row: span 1; }
 
-        @media (max-width: 1024px) { [class*="jdm-tile-"] { grid-column: span 6 !important; grid-row: span 1 !important; } } 
-        @media (max-width: 768px) {
-            #coremotion-header, .jdm-ss-container { padding-left: 15px !important; padding-right: 15px !important; }
-            .bt-title-main, .bt-title-outline { font-size: 15vw !important; }
-            .jdm-ss-mosaic { grid-template-columns: 1fr; grid-auto-rows: auto; } 
-            [class*="jdm-tile-"] { grid-column: span 1 !important; height: 450px; }
-        }
+        @media (max-width: 1024px) { .jdm-ss-mosaic { grid-template-columns: 1fr; grid-auto-rows: auto; } [class*="jdm-tile-"] { grid-column: span 1 !important; height: 400px; } }
     </style>
 </head>
 <body>
 
 <div id="ottani-archive-root">
-    <div id="coremotion-header">
-        <header class="bt-magazine-header">
-            <div class="bt-brand-stack">
-                <h1 class="bt-title-main">GALLERY</h1>
-                <h1 class="bt-title-outline">ARCHIVE</h1>
-            </div>
-            <div class="bt-full-divider"></div>
-            <p class="bt-editorial-text">
-                REAL-TIME <b>JDM VISUALS</b>, <b>SHORT FORM PERFORMANCE</b> AND <b>STREET DRIVEN ENERGY</b>, 
-                ARCHIVING GLOBAL <b>CAR CULTURE</b> THROUGH CONTINUOUS <b>DIGITAL MOTION</b>.
-            </p>
-        </header>
-    </div>
+    <header class="bt-magazine-header">
+        <h1 class="bt-title-main">GALLERY</h1>
+        <h1 class="bt-title-outline">ARCHIVE</h1>
+        <p class="bt-editorial-text">ARCHIVING GLOBAL <b>CAR CULTURE</b> THROUGH CONTINUOUS <b>DIGITAL MOTION</b>.</p>
+    </header>
 
-    <div class="jdm-ss-container"> 
-        <div class="jdm-ss-mosaic" id="jdm-social-engine"></div> 
-        <div id="jdm-loader-engine" class="jdm-loader-container"><div class="jdm-spinner"></div></div>
-        <div id="jdm-load-more-trigger" style="height: 50px; width: 100%;"></div>
-    </div> 
+    <div class="jdm-ss-mosaic" id="jdm-social-engine"></div>
+    <div id="jdm-load-more-trigger" style="height: 100px;"></div>
 </div>
 
-<script> 
-(function() { 
-    var KEYS = {
-        UNSPLASH: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA",
-        PEXELS: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
-        PIXABAY: "55464526-8c1ed1d759c73669d0c1f38ab"
-    };
+<script>
+(function() {
+    const KEYS = { UNSPLASH: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", PEXELS: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD", PIXABAY: "55464526-8c1ed1d759c73669d0c1f38ab" };
+    let currentPage = 1, isFetching = false, itemsCounter = 0;
 
-    var currentPage = 1;
-    var isFetching = false;
-    var itemsCounter = 0;
-    var LIMIT = 150;
+    // RECYCLE ENGINE: Scarica le immagini non visibili
+    const memoryObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const img = entry.target.querySelector('img');
+            if (entry.isIntersecting) {
+                if (img.dataset.src) img.src = img.dataset.src;
+                entry.target.classList.add('loaded');
+            } else {
+                img.src = ''; // Libera RAM
+            }
+        });
+    }, { rootMargin: '500px' });
 
-    function filterContent(str){
-        if(!str) return false;
-        var black = ["render", "3d", "illustration", "ai generated", "painting"];
-        return !black.some(function(w) { return str.toLowerCase().includes(w); });
-    }
-
-    function processTags(str){
-        if(!str) return ["JDM", "CORE"];
-        return str.split(/[\s,]+/).slice(0, 3).map(function(t) { return t.toUpperCase().replace(/[^A-Z]/g, ''); });
-    }
-
-    function renderCard(imgUrl, title, credit, provider, originalUrl, rawDate){
-        var grid = document.getElementById('jdm-social-engine');
-        if(!grid) return;
-
-        var safeTitle = title || "100 OTTANI VISUAL ARCHIVE";
-        var safeAuthor = credit || "STAFF";
-        var displayDate = rawDate ? new Date(rawDate).toLocaleDateString('it-IT') : new Date().toLocaleDateString('it-IT');
-        var tags = processTags(title);
-
-        var idx = itemsCounter % 4; 
-        var tileStyle = (idx === 0) ? 'jdm-tile-tall' : (idx === 1) ? 'jdm-tile-wide' : 'jdm-tile-sm';
+    function createCard(imgUrl, title, author, provider, url) {
+        const grid = document.getElementById('jdm-social-engine');
+        const idx = itemsCounter % 4;
+        const style = (idx === 0) ? 'jdm-tile-tall' : (idx === 1) ? 'jdm-tile-wide' : 'jdm-tile-sm';
         
-        var card = document.createElement('a'); 
-        card.href = originalUrl; 
-        card.target = "_blank";  
-        card.className = "jdm-ss-card " + tileStyle; 
-
-        var tagsHtml = tags.map(function(tag) { return '<span class="jdm-ss-chip">#' + tag + '</span>'; }).join('');
-
-        card.innerHTML = 
-            '<div class="jdm-ss-media">' +
-                '<img src="' + imgUrl + '" alt="' + safeTitle + '" loading="lazy">' +
-                '<div class="jdm-ss-tags-top"><span class="jdm-ss-new">100 OTTANI</span></div>' +
-            '</div>' +
-            '<div class="jdm-ss-body">' +
-                '<div class="jdm-ss-content-top">' +
-                    '<div class="jdm-ss-meta-row">' +
-                        '<span class="jdm-ss-mono-meta">ARCHIVE_' + provider.toUpperCase() + '</span>' +
-                        '<span class="jdm-ss-mono-meta">' + displayDate + '</span>' +
-                    '</div>' +
-                    '<h3 class="jdm-ss-title">' + safeTitle + '</h3>' +
-                    '<div class="jdm-ss-desc">' +
-                        '<span><strong>TITLE:</strong> ' + safeTitle.substring(0, 35) + '...</span>' +
-                        '<span><strong>AUTHOR:</strong> ' + safeAuthor + '</span>' +
-                        '<span><strong>DATE:</strong> ' + displayDate + '</span>' +
-                        '<span><strong>SOURCE:</strong> ' + provider + '</span>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="jdm-ss-footer">' +
-                    '<div class="jdm-ss-tags-row">' + tagsHtml + '</div>' +
-                    '<div class="jdm-ss-action">' +
-                        '<span class="jdm-ss-btn">OPEN</span>' +
-                        '<svg class="jdm-ss-arrow" viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" stroke-width="3">' +
-                            '<line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>' +
-                        '</svg>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="jdm-ss-bar"></div>' +
-            '</div>'; 
-        
-        grid.appendChild(card);
+        const a = document.createElement('a');
+        a.className = `jdm-ss-card ${style}`;
+        a.href = url; a.target = "_blank";
+        a.innerHTML = `
+            <div class="jdm-ss-media"><img data-src="${imgUrl}" src=""></div>
+            <div class="jdm-ss-body">
+                <div class="jdm-ss-meta-row"><span>${provider}</span><span>2026_APR</span></div>
+                <h3 class="jdm-ss-title">${(title || 'JDM_VISUAL').substring(0, 20)}</h3>
+                <div class="jdm-ss-desc">
+                    <strong>AUTHOR:</strong> ${author}<br>
+                    <strong>SOURCE:</strong> ${provider}<br>
+                    <strong>STATUS:</strong> VERIFIED
+                </div>
+                <div class="jdm-ss-footer"><span class="jdm-ss-btn">OPEN_FILE</span><span>↗</span></div>
+                <div class="jdm-ss-bar"></div>
+            </div>
+        `;
+        grid.appendChild(a);
+        memoryObserver.observe(a);
         itemsCounter++;
     }
 
-    async function fetchImages() {
-        if(isFetching || itemsCounter >= LIMIT) return;
-        isFetching = true;
-        document.getElementById('jdm-loader-engine').classList.add('active');
-
+    async function load() {
+        if (isFetching) return; isFetching = true;
+        const q = "jdm car tuning";
         try {
-            var q = "jdm car tuning modified";
-            var urlU = "https://api.unsplash.com/search/photos?page=" + currentPage + "&query=" + q + "&client_id=" + KEYS.UNSPLASH;
-            var urlPe = "https://api.pexels.com/v1/search?query=" + q + "&per_page=12&page=" + currentPage;
-            var urlPi = "https://pixabay.com/api/?key=" + KEYS.PIXABAY + "&q=car+tuning+jdm&image_type=photo&page=" + currentPage + "&per_page=12";
-
-            const responses = await Promise.allSettled([
-                fetch(urlU).then(r => r.json()),
-                fetch(urlPe, { headers: { Authorization: KEYS.PEXELS } }).then(r => r.json()),
-                fetch(urlPi).then(r => r.json())
+            const res = await Promise.allSettled([
+                fetch(`https://api.unsplash.com/search/photos?page=${currentPage}&query=${q}&client_id=${KEYS.UNSPLASH}`).then(r => r.json()),
+                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${currentPage}`, {headers:{Authorization:KEYS.PEXELS}}).then(r => r.json())
             ]);
-
-            responses.forEach((res, index) => {
-                if(res.status === 'fulfilled' && res.value) {
-                    var data = res.value;
-                    if(index === 0 && data.results) {
-                        data.results.forEach(img => renderCard(img.urls.small, img.alt_description, img.user.name, "Unsplash", img.links.html, img.created_at));
-                    } else if(index === 1 && data.photos) {
-                        data.photos.forEach(img => renderCard(img.src.medium, img.alt, img.photographer, "Pexels", img.url, null));
-                    } else if(index === 2 && data.hits) {
-                        data.hits.forEach(img => renderCard(img.webformatURL, img.tags, img.user, "Pixabay", img.pageURL, null));
-                    }
+            res.forEach((r, i) => {
+                if (r.status === 'fulfilled') {
+                    const items = i === 0 ? r.value.results : r.value.photos;
+                    items.forEach(img => createCard(i===0 ? img.urls.regular : img.src.large, i===0 ? img.alt_description : img.alt, i===0 ? img.user.name : img.photographer, i===0 ? 'UNSPLASH' : 'PEXELS', i===0 ? img.links.html : img.url));
                 }
             });
             currentPage++;
-        } catch(e) { console.error(e); } finally {
-            isFetching = false;
-            document.getElementById('jdm-loader-engine').classList.remove('active');
-        }
+        } finally { isFetching = false; }
     }
 
-    var observer = new IntersectionObserver(function(entries) {
-        if(entries[0].isIntersecting) fetchImages();
-    }, { threshold: 0.1 });
+    const trigger = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); });
+    trigger.observe(document.getElementById('jdm-load-more-trigger'));
 
-    observer.observe(document.getElementById('jdm-load-more-trigger'));
-    fetchImages(); 
+    // COMUNICAZIONE ALTEZZA
+    const sendHeight = () => {
+        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+    };
+    new ResizeObserver(sendHeight).observe(document.body);
+    load();
 })();
-    <script>
-    // Invia l'altezza a Fourthwall per eliminare lo scroll interno dell'iframe
-    function sendHeight() {
-        const height = document.documentElement.scrollHeight;
-        window.parent.postMessage({ type: 'resize', height: height }, '*');
-    }
-
-    // Invia altezza all'inizio e ogni volta che vengono caricate nuove foto
-    window.addEventListener('load', sendHeight);
-    
-    // Crea un observer per monitorare quando la grid si allunga
-    const resizeObserver = new ResizeObserver(sendHeight);
-    resizeObserver.observe(document.getElementById('jdm-engine-grid'));
 </script>
 </body>
 </html>
