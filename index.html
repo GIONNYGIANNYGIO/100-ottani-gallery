@@ -363,6 +363,19 @@
     observer.observe(document.getElementById('jdm-load-more-trigger'));
     fetchImages(); 
 })();
+    <script>
+    // Invia l'altezza a Fourthwall per eliminare lo scroll interno dell'iframe
+    function sendHeight() {
+        const height = document.documentElement.scrollHeight;
+        window.parent.postMessage({ type: 'resize', height: height }, '*');
+    }
+
+    // Invia altezza all'inizio e ogni volta che vengono caricate nuove foto
+    window.addEventListener('load', sendHeight);
+    
+    // Crea un observer per monitorare quando la grid si allunga
+    const resizeObserver = new ResizeObserver(sendHeight);
+    resizeObserver.observe(document.getElementById('jdm-engine-grid'));
 </script>
 </body>
 </html>
