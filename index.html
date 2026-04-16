@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 Ottani Please!™ | JDM Archive</title>
+    
+    <title>Gallery | 100 Ottani Please!™ | Racing Streetwear Lab</title>
+    <meta name="description" content="L'archivio visivo ufficiale di 100 Ottani Please!™. Esplora la cultura JDM, il tuning e lo streetwear racing in tempo reale.">
+    <meta name="author" content="100 Ottani Please!™">
+    <link rel="canonical" href="https://100ottaniplease.com">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
         @font-face {
@@ -18,82 +23,101 @@
             color: #fff;
             overflow-x: hidden;
             font-family: 'JetBrains Mono', monospace;
-            /* Ottimizzazione rendering */
             -webkit-font-smoothing: antialiased;
-            scroll-behavior: smooth;
         }
 
+        /* CONFIGURAZIONE MARGINI RICHIESTI */
         #ottani-archive-root {
             width: 100%;
-            padding: 0 30px;
+            padding: 0 30px; /* Margine Desktop */
             box-sizing: border-box;
             --accent: #FFFF00;
         }
 
+        @media (max-width: 768px) { 
+            #ottani-archive-root { 
+                padding: 0 15px; /* Margine Mobile */
+            } 
+        }
+
+        /* HEADER INTEGRALE */
+        .bt-magazine-header { padding-top: 80px; padding-bottom: 50px; display: flex; flex-direction: column; }
+        .bt-brand-stack { margin-bottom: 35px; }
+        .bt-title-main, .bt-title-outline { 
+            font-family: 'Monument Extended', sans-serif !important;
+            font-size: clamp(3.5rem, 11vw, 10rem); font-weight: 900; line-height: 0.82; margin: 0; text-transform: uppercase; letter-spacing: -2px;
+        }
+        .bt-title-main { color: #ffffff; }
+        .bt-title-outline { color: transparent; -webkit-text-stroke: 1.2px rgba(255, 255, 255, 0.25); margin-top: 4px; }
+        .bt-full-divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; }
+        .bt-editorial-text { font-size: 11px; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; text-align: right; letter-spacing: 1.5px; }
+
+        /* GRID SYSTEM - ZERO HOLES */
         .jdm-ss-mosaic { 
             display: grid; 
             grid-template-columns: repeat(12, 1fr); 
-            grid-auto-rows: 300px;
+            grid-auto-rows: 320px;
             gap: 15px;
-            grid-auto-flow: row;
         } 
 
         .jdm-ss-card {
             background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; position: relative; overflow: hidden;
-            /* Forza l'uso della GPU */
-            backface-visibility: hidden;
-            transform: translateZ(0);
-            will-change: transform, border-color;
+            backface-visibility: hidden; transform: translateZ(0);
+            will-change: transform;
         }
 
         .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; }
-        
-        /* Immagini fluide ma ottimizzate */
         .jdm-ss-media img { 
-            width: 100%; height: 100%; 
-            object-fit: cover; 
-            filter: brightness(0.7); 
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), filter 0.6s;
+            width: 100%; height: 100%; object-fit: cover; 
+            filter: brightness(0.7); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), filter 0.6s;
             will-change: transform, filter;
         }
 
+        /* HOVER BODY */
         .jdm-ss-body {
             position: absolute; bottom: 0; left: 0; width: 100%;
-            padding: 15px; box-sizing: border-box; background: #0a0a0a;
+            padding: 18px; box-sizing: border-box; background: #0a0a0a;
             transform: translateY(101%); opacity: 0;
             transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s;
             z-index: 3;
-            will-change: transform, opacity;
         }
+
+        .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 8px; }
+        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; }
+        .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 12px 0 8px 0; }
+        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; }
+        .jdm-ss-action { font-size: 9px; color: #444; font-weight: 900; }
 
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
         .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
+        .jdm-ss-card:hover .jdm-ss-action { color: var(--accent); }
 
-        /* Pattern Rigidi */
+        /* PATTERN DIMENSIONI */
         .full { grid-column: span 12; }
         .wide { grid-column: span 8; }
         .narrow { grid-column: span 4; }
 
         @media (max-width: 1024px) { 
-            .jdm-ss-mosaic { grid-auto-rows: 350px; }
-            [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } 
+            [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; height: 380px; } 
         }
-
-        /* Stili testi */
-        .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 6px; }
-        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; }
-        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: 10px; }
-        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; }
-        .jdm-ss-action { font-size: 9px; color: #444; font-weight: 900; }
-        .jdm-ss-card:hover .jdm-ss-action { color: var(--accent); }
     </style>
 </head>
 <body>
 
 <div id="ottani-archive-root">
+    <header class="bt-magazine-header">
+        <div class="bt-brand-stack">
+            <h1 class="bt-title-main">GALLERY</h1>
+            <h1 class="bt-title-outline">ARCHIVE</h1>
+        </div>
+        <div class="bt-full-divider"></div>
+        <p class="bt-editorial-text">REAL-TIME <b>JDM VISUALS</b></p>
+    </header>
+
     <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
-    <div id="jdm-load-more-trigger" style="height: 20px;"></div>
+    <div id="jdm-load-more-trigger" style="height: 50px;"></div>
 </div>
 
 <script>
@@ -101,16 +125,16 @@
     const KEYS = { U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD" };
     let page = 1, fetching = false, counter = 0;
 
-    const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full'];
-    const patternB = ['wide', 'narrow', 'full', 'narrow', 'wide', 'full'];
+    const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
+    const patternB = [...patternA].reverse();
 
     async function load() {
         if (fetching) return; fetching = true;
         try {
-            const q = "jdm performance cars tuning";
+            const q = "jdm performance tuning street";
             const res = await Promise.allSettled([
                 fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&client_id=${KEYS.U}`).then(r => r.json()),
-                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json())
+                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=10&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json())
             ]);
 
             const grid = document.getElementById('jdm-engine-grid');
@@ -118,14 +142,13 @@
                 if (r.status === 'fulfilled') {
                     const data = i === 0 ? (r.value.results || []) : (r.value.photos || []);
                     data.forEach(item => {
-                        const info = {
-                            img: i === 0 ? item.urls.regular + "&q=75&w=1000" : item.src.large, // Riduce qualità per velocità
+                        grid.appendChild(createCard({
+                            img: i === 0 ? item.urls.regular + "&q=80&w=1200" : item.src.large,
                             title: (i === 0 ? (item.alt_description || item.description) : item.alt) || "JDM VISUAL",
                             author: i === 0 ? item.user.name : item.photographer,
                             source: i === 0 ? "UNSPLASH" : "PEXELS",
                             url: i === 0 ? item.links.html : item.url
-                        };
-                        grid.appendChild(createCard(info));
+                        }));
                     });
                 }
             });
@@ -134,8 +157,8 @@
     }
 
     function createCard(d) {
-        const pattern = (Math.floor(counter / 6) % 2 === 0) ? patternA : patternB;
-        const style = pattern[counter % 6];
+        const pattern = (Math.floor(counter / 10) % 2 === 0) ? patternA : patternB;
+        const style = pattern[counter % 10];
         counter++;
 
         const a = document.createElement('a');
@@ -144,10 +167,11 @@
         a.innerHTML = `
             <div class="jdm-ss-media"><img src="${d.img}" loading="lazy" decoding="async"></div>
             <div class="jdm-ss-body">
-                <div class="jdm-ss-meta-header"><span>${d.source}</span><span>17/04/26</span></div>
+                <div class="jdm-ss-meta-header"><span>${d.source}</span><span>17/04/2026</span></div>
                 <h2 class="jdm-ss-title">${d.title}</h2>
+                <div class="jdm-ss-info-row"><span>AUTHOR: ${d.author}</span><span>STATUS: VERIFIED</span></div>
                 <div class="jdm-ss-footer">
-                    <span class="jdm-ss-tag">#JDM_CORE</span>
+                    <span class="jdm-ss-tag">#JDM_ARCHIVE</span>
                     <span class="jdm-ss-action">VIEW ↗</span>
                 </div>
             </div>
@@ -155,11 +179,9 @@
         return a;
     }
 
-    // Caricamento infinito fluido
-    const observer = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
-    observer.observe(document.getElementById('jdm-load-more-trigger'));
+    const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '300px' });
+    obs.observe(document.getElementById('jdm-load-more-trigger'));
     
-    // Sync Fourthwall ottimizzato (Debounced)
     let timeout;
     const sync = () => {
         clearTimeout(timeout);
