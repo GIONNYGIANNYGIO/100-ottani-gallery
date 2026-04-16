@@ -180,154 +180,136 @@
     </section>
 
     <script> 
-    (function() { 
-        const KEYS = {
-            UNSPLASH: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA",
-            PEXELS: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
-            PIXABAY: "55464526-8c1ed1d759c73669d0c1f38ab"
-        };
+(function() { 
+    var KEYS = {
+        UNSPLASH: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA",
+        PEXELS: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
+        PIXABAY: "55464526-8c1ed1d759c73669d0c1f38ab"
+    };
 
-        let currentPage = 1;
-        let isFetching = false;
-        let itemsCounter = 0;
-        const LIMIT = 200;
+    var currentPage = 1;
+    var isFetching = false;
+    var itemsCounter = 0;
+    var LIMIT = 200;
 
-        function filterContent(str){
-            if(!str) return false;
-            const blacklist = ["render", "3d", "illustration", "ai generated", "painting", "drawing"];
-            return !blacklist.some(word => str.toLowerCase().includes(word));
-        }
+    function filterContent(str){
+        if(!str) return false;
+        var blacklist = ["render", "3d", "illustration", "ai generated", "painting", "drawing"];
+        return !blacklist.some(function(word) { return str.toLowerCase().includes(word); });
+    }
 
-        function processTags(str){
-            const defaults = ["JDM", "TUNING", "100OTTANI"];
-            if(!str) return defaults;
-            return str.split(/[\s,]+/).slice(0, 3).map(t => t.toUpperCase().replace(/[^A-Z]/g, ''));
-        }
+    function processTags(str){
+        var defaults = ["JDM", "TUNING", "100OTTANI"];
+        if(!str) return defaults;
+        return str.split(/[\s,]+/).slice(0, 3).map(function(t) { return t.toUpperCase().replace(/[^A-Z]/g, ''); });
+    }
 
-        function renderCard(imgUrl, title, credit, provider, originalUrl, rawDate){
-            const grid = document.getElementById('jdm-social-engine');
-            if(!grid) return;
+    function renderCard(imgUrl, title, credit, provider, originalUrl, rawDate){
+        var grid = document.getElementById('jdm-social-engine');
+        if(!grid) return;
 
-            const safeTitle = title || "100 Ottani Please!™ Archive";
-            const safeAuthor = credit || "Unknown Artist";
-            
-            let displayDate;
-            if (rawDate) {
-                displayDate = new Date(rawDate).toLocaleDateString('it-IT');
-            } else {
-                displayDate = new Date().toLocaleDateString('it-IT'); 
-            }
+        var safeTitle = title || "100 Ottani Please!™ Archive";
+        var safeAuthor = credit || "Unknown Artist";
+        var displayDate = rawDate ? new Date(rawDate).toLocaleDateString('it-IT') : new Date().toLocaleDateString('it-IT');
+        var tags = processTags(title);
 
-            const tags = processTags(title);
-
-            const card = document.createElement('a'); 
-            card.href = originalUrl; 
-            card.target = "_blank";  
-            
-            const idx = itemsCounter % 4; 
-            let tileStyle = (idx === 0) ? 'jdm-tile-tall' : (idx === 1) ? 'jdm-tile-wide' : 'jdm-tile-sm';
-            card.className = `jdm-ss-card ${tileStyle}`; 
-
-            card.innerHTML = ` 
-                <div class="jdm-ss-media"> 
-                    <img src="${imgUrl}" alt="${safeTitle}" loading="lazy"> 
-                    <div class="jdm-ss-tags-top"> 
-                        <span class="jdm-ss-new">100 OTTANI</span>
-                    </div>
-                </div> 
-                <div class="jdm-ss-body"> 
-                    <div class="jdm-ss-content-top">
-                        <div class="jdm-ss-meta-row">
-                            <span class="jdm-ss-mono-meta">SRC_${provider.toUpperCase()}</span>
-                            <span class="jdm-ss-mono-meta">${displayDate}</span>
-                        </div>
-                        <h3 class="jdm-ss-title">${safeTitle}</h3> 
-                        
-                        <div class="jdm-ss-desc">
-                            <span><strong>Title:</strong> ${safeTitle.substring(0, 40)}${safeTitle.length > 40 ? '...' : ''}</span>
-                            <span><strong>Author:</strong> ${safeAuthor}</span>
-                            <span><strong>Date:</strong> ${displayDate}</span>
-                            <span><strong>Source:</strong> ${provider}</span>
-                        </div>
-                    </div> 
-                    
-                    <div class="jdm-ss-footer"> 
-                        <div class="jdm-ss-tags-row">
-                            ${tags.map(tag => `<span class="jdm-ss-chip">#${tag}</span>`).join('')}
-                        </div>
-                        <div class="jdm-ss-action">
-                            <span class="jdm-ss-btn">OPEN</span> 
-                            <svg class="jdm-ss-arrow" viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="3">
-                                <line x1="7" y1="17" x2="17" y2="7"></line>
-                                <polyline points="7 7 17 7 17 17"></polyline>
-                            </svg> 
-                        </div>
-                    </div>
-                    <div class="jdm-ss-bar"></div> 
-                </div> 
-            `; 
-            grid.appendChild(card);
-            itemsCounter++;
-        }
-
-        async function fetchImages() {
-            if(isFetching || itemsCounter >= LIMIT) return;
-            isFetching = true;
-            
-            const loader = document.getElementById('jdm-loader-engine');
-            if(loader) loader.classList.add('active');
-
-            try {
-                const query = "jdm car tuning modified drift";
-                
-                const [resU, resPe, resPi] = await Promise.allSettled([
-                    fetch(\`https://api.unsplash.com/search/photos?page=\${currentPage}&query=\${query}&client_id=\${KEYS.UNSPLASH}\`).then(r => r.json()),
-                    fetch(\`https://api.pexels.com/v1/search?query=\${query}&per_page=12&page=\${currentPage}\`, { headers: { Authorization: KEYS.PEXELS } }).then(r => r.json()),
-                    fetch(\`https://pixabay.com/api/?key=\${KEYS.PIXABAY}&q=car+tuning+jdm&image_type=photo&page=\${currentPage}&per_page=12\`).then(r => r.json())
-                ]);
-
-                if(resU.status === 'fulfilled' && resU.value.results) {
-                    resU.value.results.forEach(img => {
-                        if(itemsCounter < LIMIT && filterContent(img.alt_description)) {
-                            renderCard(img.urls.small, img.alt_description, img.user.name, "Unsplash", img.links.html, img.created_at);
-                        }
-                    });
-                }
-
-                if(resPe.status === 'fulfilled' && resPe.value.photos) {
-                    resPe.value.photos.forEach(img => {
-                        if(itemsCounter < LIMIT && filterContent(img.alt)) {
-                            renderCard(img.src.medium, img.alt, img.photographer, "Pexels", img.url, null);
-                        }
-                    });
-                }
-
-                if(resPi.status === 'fulfilled' && resPi.value.hits) {
-                    resPi.value.hits.forEach(img => {
-                        if(itemsCounter < LIMIT && filterContent(img.tags)) {
-                            renderCard(img.webformatURL, img.tags, img.user, "Pixabay", img.pageURL, null);
-                        }
-                    });
-                }
-
-                currentPage++;
-            } catch(e) {
-                console.error("Gallery Engine Error:", e);
-            } finally {
-                isFetching = false;
-                if(loader) loader.classList.remove('active');
-            }
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-            if(entries[0].isIntersecting) fetchImages();
-        }, { threshold: 0.1 });
-
-        const trigger = document.getElementById('jdm-load-more-trigger');
-        if(trigger) observer.observe(trigger);
+        var idx = itemsCounter % 4; 
+        var tileStyle = (idx === 0) ? 'jdm-tile-tall' : (idx === 1) ? 'jdm-tile-wide' : 'jdm-tile-sm';
         
-        fetchImages(); 
-    })();
-    </script>
+        var card = document.createElement('a'); 
+        card.href = originalUrl; 
+        card.target = "_blank";  
+        card.className = "jdm-ss-card " + tileStyle; 
+
+        var tagsHtml = tags.map(function(tag) { return '<span class="jdm-ss-chip">#' + tag + '</span>'; }).join('');
+
+        card.innerHTML = 
+            '<div class="jdm-ss-media">' +
+                '<img src="' + imgUrl + '" alt="' + safeTitle + '" loading="lazy">' +
+                '<div class="jdm-ss-tags-top"><span class="jdm-ss-new">100 OTTANI</span></div>' +
+            '</div>' +
+            '<div class="jdm-ss-body">' +
+                '<div class="jdm-ss-content-top">' +
+                    '<div class="jdm-ss-meta-row">' +
+                        '<span class="jdm-ss-mono-meta">SRC_' + provider.toUpperCase() + '</span>' +
+                        '<span class="jdm-ss-mono-meta">' + displayDate + '</span>' +
+                    '</div>' +
+                    '<h3 class="jdm-ss-title">' + safeTitle + '</h3>' +
+                    '<div class="jdm-ss-desc">' +
+                        '<span><strong>Title:</strong> ' + safeTitle.substring(0, 40) + '</span>' +
+                        '<span><strong>Author:</strong> ' + safeAuthor + '</span>' +
+                        '<span><strong>Date:</strong> ' + displayDate + '</span>' +
+                        '<span><strong>Source:</strong> ' + provider + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="jdm-ss-footer">' +
+                    '<div class="jdm-ss-tags-row">' + tagsHtml + '</div>' +
+                    '<div class="jdm-ss-action">' +
+                        '<span class="jdm-ss-btn">OPEN</span>' +
+                        '<svg class="jdm-ss-arrow" viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="3">' +
+                            '<line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>' +
+                        '</svg>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="jdm-ss-bar"></div>' +
+            '</div>'; 
+        
+        grid.appendChild(card);
+        itemsCounter++;
+    }
+
+    async function fetchImages() {
+        if(isFetching || itemsCounter >= LIMIT) return;
+        isFetching = true;
+        
+        var loader = document.getElementById('jdm-loader-engine');
+        if(loader) loader.classList.add('active');
+
+        try {
+            var q = "jdm car tuning modified drift";
+            
+            // Fetching con URL puliti
+            var urlU = "https://api.unsplash.com/search/photos?page=" + currentPage + "&query=" + q + "&client_id=" + KEYS.UNSPLASH;
+            var urlPe = "https://api.pexels.com/v1/search?query=" + q + "&per_page=12&page=" + currentPage;
+            var urlPi = "https://pixabay.com/api/?key=" + KEYS.PIXABAY + "&q=car+tuning+jdm&image_type=photo&page=" + currentPage + "&per_page=12";
+
+            const responses = await Promise.allSettled([
+                fetch(urlU).then(r => r.json()),
+                fetch(urlPe, { headers: { Authorization: KEYS.PEXELS } }).then(r => r.json()),
+                fetch(urlPi).then(r => r.json())
+            ]);
+
+            responses.forEach((res, index) => {
+                if(res.status === 'fulfilled') {
+                    var data = res.value;
+                    if(index === 0 && data.results) { // Unsplash
+                        data.results.forEach(img => renderCard(img.urls.small, img.alt_description, img.user.name, "Unsplash", img.links.html, img.created_at));
+                    } else if(index === 1 && data.photos) { // Pexels
+                        data.photos.forEach(img => renderCard(img.src.medium, img.alt, img.photographer, "Pexels", img.url, null));
+                    } else if(index === 2 && data.hits) { // Pixabay
+                        data.hits.forEach(img => renderCard(img.webformatURL, img.tags, img.user, "Pixabay", img.pageURL, null));
+                    }
+                }
+            });
+
+            currentPage++;
+        } catch(e) {
+            console.error("Engine Error:", e);
+        } finally {
+            isFetching = false;
+            if(loader) loader.classList.remove('active');
+        }
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+        if(entries[0].isIntersecting) fetchImages();
+    }, { threshold: 0.1 });
+
+    var trigger = document.getElementById('jdm-load-more-trigger');
+    if(trigger) observer.observe(trigger);
+    
+    fetchImages(); 
+})();
+</script>
 </body>
 </html>
