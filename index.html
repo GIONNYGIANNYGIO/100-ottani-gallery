@@ -3,24 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Gallery Archive | 100 Ottani Please!™ | JDM & Racing Culture</title>
-    <meta name="description" content="Explore the 100 Ottani Please!™ visual archive. A real-time collection of JDM culture, extreme tuning, and global street racing documentation.">
-    <link rel="canonical" href="https://100ottaniplease.com/gallery" />
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org/",
-      "@type": "ImageGallery",
-      "name": "100 Ottani Please!™ Visual Archive",
-      "description": "Continuous photographic archive of global JDM and tuning culture.",
-      "sourceOrganization": {
-        "@type": "Organization",
-        "name": "100 Ottani Please!™"
-      }
-    }
-    </script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
         @font-face {
@@ -29,239 +11,159 @@
             font-weight: 800;
         }
 
+        :root { --accent: #FFFF00; --bg: transparent; }
+
         html, body {
             margin: 0; padding: 0;
-            background: transparent !important;
+            background: var(--bg) !important;
             color: #fff;
-            overflow-x: hidden;
             font-family: 'JetBrains Mono', monospace;
+            overflow: hidden; /* Fondamentale: disabilita lo scroll interno all'iframe */
             -webkit-font-smoothing: antialiased;
-            scroll-behavior: smooth;
         }
 
-        #ottani-archive-root {
-            width: 100%;
-            padding: 0 30px;
-            box-sizing: border-box;
-            --accent: #FFFF00;
-        }
+        #ottani-container { width: 100%; padding: 0; box-sizing: border-box; }
 
-        @media (max-width: 768px) { #ottani-archive-root { padding: 0 15px; } }
-
-        /* HEADER */
-        .bt-magazine-header { padding: 100px 0 40px; display: flex; flex-direction: column; }
-        .bt-brand-stack { width: 100%; margin-bottom: 40px; overflow: hidden; }
-        .bt-title-main, .bt-title-outline { 
+        /* HEADER STYLE */
+        .header-section { padding: 60px 20px 40px; }
+        .title-stack h1 {
             font-family: 'Monument Extended', sans-serif !important;
-            font-size: clamp(4rem, 12vw, 11rem); font-weight: 900; line-height: 0.85; margin: 0; 
-            text-transform: uppercase; letter-spacing: 1px; display: block; white-space: nowrap;
+            font-size: clamp(3rem, 10vw, 8rem);
+            line-height: 0.8; margin: 0; text-transform: uppercase;
+            letter-spacing: -3px;
         }
-        .bt-title-main { color: #ffffff; }
-        .bt-title-outline { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3); margin-top: 5px; }
-        .bt-full-divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
-        .bt-editorial-text { 
-            font-size: 11px; line-height: 1.8; color: rgba(255, 255, 255, 0.5); 
-            text-transform: uppercase; text-align: right !important; max-width: 520px;
-            margin-left: auto !important; letter-spacing: 2px;
-        }
-        .bt-editorial-text b { color: var(--accent); font-weight: 800; }
-
-        /* GRID */
-        .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 300px; gap: 15px; } 
-
-        /* CARDS & LAZY LOADING PERFORMANCE FIXES */
-        .jdm-ss-card {
-            background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
-            text-decoration: none; display: flex; flex-direction: column;
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
-            
-            /* Anti-scatti estremo: evita che il browser calcoli elementi non visibili */
-            content-visibility: auto;
-            contain: style layout;
-        }
-        
-        .jdm-ss-card:hover { border-color: var(--accent); z-index: 10; }
-        .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; background: #000; }
-        
-        .jdm-ss-media img { 
-            width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); 
-            opacity: 0; /* Partono invisibili per il fade-in */
-            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), filter 0.6s;
-            will-change: transform, opacity;
+        .subtitle { 
+            font-size: 10px; color: rgba(255,255,255,0.4); 
+            letter-spacing: 2px; margin-top: 20px; text-transform: uppercase;
         }
 
-        .jdm-ss-body {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            padding: 18px; box-sizing: border-box; background: #0a0a0a;
-            transform: translateY(100%); opacity: 0;
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 3;
-            will-change: transform, opacity;
+        /* MOSAIC GRID */
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 350px; gap: 15px; padding: 20px; }
+
+        /* CARD ARCHITECTURE */
+        .card {
+            background: #050505; border: 1px solid rgba(255,255,255,0.05);
+            position: relative; overflow: hidden; transition: border-color 0.4s;
+            text-decoration: none; color: inherit;
         }
-        
-        .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
-        .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
+        .card:hover { border-color: var(--accent); }
+        .card img { 
+            width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5);
+            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); opacity: 0;
+        }
+        .card:hover img { filter: brightness(0.2) grayscale(1); transform: scale(1.05); }
 
-        .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 6px; }
-        .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; }
-        .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
-        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
-        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-right: 6px; }
-        .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
-        .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
+        /* OVERLAY & ARROW */
+        .card-content {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: flex-end; padding: 25px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            transform: translateY(15px); opacity: 0; transition: 0.4s;
+        }
+        .card:hover .card-content { transform: translateY(0); opacity: 1; }
 
+        .card-title { font-family: 'Monument Extended', sans-serif; font-size: 11px; margin-bottom: 15px; }
+
+        .card-footer { 
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;
+        }
+
+        /* VIEW + DYNAMIC ARROW */
+        .view-action {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 9px; font-weight: 800; color: var(--accent);
+        }
+        .arrow-icon {
+            width: 14px; height: 14px; fill: none; stroke: currentColor; 
+            stroke-width: 2.5; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card:hover .arrow-icon { transform: rotate(-45deg) translate(2px, -2px); }
+
+        /* RESPONSIVE LAYOUTS */
         .full { grid-column: span 12; }
         .wide { grid-column: span 8; }
         .narrow { grid-column: span 4; }
 
-        @media (max-width: 1024px) { 
-            .jdm-ss-mosaic { grid-auto-rows: 350px; }
-            [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } 
-            .bt-magazine-header { padding-top: 50px; }
+        @media (max-width: 900px) {
+            .grid { grid-auto-rows: 300px; padding: 10px; gap: 10px; }
+            [class*="wide"], [class*="narrow"] { grid-column: span 12; }
         }
     </style>
 </head>
 <body>
 
-<div id="ottani-archive-root">
-    <header class="bt-magazine-header">
-        <div class="bt-brand-stack">
-            <h1 class="bt-title-main">GALLERY</h1>
-            <h1 class="bt-title-outline">ARCHIVE</h1>
-        </div>
-        <div class="bt-full-divider"></div>
-        <p class="bt-editorial-text">
-            CURATED <b>JDM VISUAL ARCHIVE</b>, EXPLORING GLOBAL <b>CAR CULTURE</b><br>
-            THROUGH CONTINUOUS <b>AUTOMOTIVE DOCUMENTATION</b>.
-        </p>
+<div id="ottani-container">
+    <header class="header-section">
+        <div class="title-stack"><h1>GALLERY</h1><h1>ARCHIVE</h1></div>
+        <div class="subtitle">Continuous Street Culture Documentation // Core Database</div>
     </header>
 
-    <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
-    
-    <div id="jdm-load-more-trigger" style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
-        <span style="font-size: 8px; color: #333; letter-spacing: 4px; font-weight: 800;">SCANNING GLOBAL DATABASE...</span>
-        <div style="width: 20px; height: 1px; background: #222;"></div>
-    </div>
+    <main class="grid" id="main-grid"></main>
+    <div id="sentinel" style="height: 20px;"></div>
 </div>
 
 <script>
-(function() {
-    let allImages = [];
-    let currentIndex = 0;
-    const CHUNK_SIZE = 12; // Carica 12 foto a scorrimento per prestazioni massime
+    const grid = document.getElementById('main-grid');
+    const pattern = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full'];
+    let images = [];
+    let index = 0;
     let counter = 0;
 
-    const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
-    const patternB = [...patternA].reverse();
-
-    // Poiché il Node.js non salva titolo e tag, generiamo un'estetica coerente qui sul frontend
-    const aestheticTitles = ["STREET STANCE", "MIDNIGHT RUNNER", "WIDEBODY BUILD", "JDM CULTURE", "TRACK WEAPON", "TOKYO DRIFT", "STATIC DROP", "PERFORMANCE TUNING"];
-    const aestheticTags = ['#JDM', '#STANCE', '#DRIFT', '#STREET', '#CULTURE', '#NIGHT', '#RACING', '#TUNED', '#CORE', '#AERO'];
-
-    function getRandomElements(arr, n) {
-        let result = new Array(n), len = arr.length, taken = new Array(len);
-        while (n--) {
-            let x = Math.floor(Math.random() * len);
-            result[n] = arr[x in taken ? taken[x] : x];
-            taken[x] = --len in taken ? taken[len] : len;
-        }
-        return result;
+    // Funzione cruciale per comunicare l'altezza a Fourthwall
+    function reportHeight() {
+        const height = document.getElementById('ottani-container').offsetHeight;
+        window.parent.postMessage({ type: 'resize', height: height }, '*');
     }
 
-    async function initGallery() {
+    async function loadGallery() {
         try {
-            // Legge il file statico compilato dal Node.js (Velocità istantanea)
-            const res = await fetch('gallery.json');
-            if (!res.ok) throw new Error("File gallery.json non trovato.");
-            allImages = await res.json();
-            renderChunk(); // Mostra le prime foto
-        } catch (err) {
-            console.error("Errore caricamento database:", err);
-            document.getElementById('jdm-load-more-trigger').innerHTML = `<span style="font-size: 8px; color: red; letter-spacing: 4px;">DATABASE OFFLINE</span>`;
-        }
+            const r = await fetch('gallery.json');
+            images = await r.json();
+            renderNext();
+        } catch (e) { console.error("Database error", e); }
     }
 
-    function renderChunk() {
-        if (currentIndex >= allImages.length) {
-            const trigger = document.getElementById('jdm-load-more-trigger');
-            if(trigger) trigger.innerHTML = `<span style="font-size: 8px; color: #555; letter-spacing: 4px; font-weight: 800;">END OF ARCHIVE</span>`;
-            return;
-        }
-
-        const grid = document.getElementById('jdm-engine-grid');
-        const chunk = allImages.slice(currentIndex, currentIndex + CHUNK_SIZE);
-
-        chunk.forEach(item => {
-            const randomTitle = aestheticTitles[Math.floor(Math.random() * aestheticTitles.length)];
-            const randomTags = getRandomElements(aestheticTags, 3);
-            
-            // Format stringa sorgente
-            let sourceText = "ARCHIVE";
-            if (item.date) {
-                if (item.date.includes("Pixabay")) sourceText = "PIXABAY";
-                else if (item.date.includes("Pexels")) sourceText = "PEXELS";
-                else sourceText = "UNSPLASH";
-            }
-
-            const d = {
-                source: sourceText,
-                title: randomTitle,
-                author: item.author || "UNKNOWN",
-                img: item.url,
-                url: item.url,
-                tags: randomTags
-            };
-
-            grid.appendChild(createCard(d));
-        });
-
-        currentIndex += CHUNK_SIZE;
-    }
-
-    function createCard(d) {
-        const pattern = (Math.floor(counter / 10) % 2 === 0) ? patternA : patternB;
-        const style = pattern[counter % 10];
-        counter++;
-
-        const article = document.createElement('article');
-        article.className = `jdm-ss-card ${style}`;
-        
-        article.innerHTML = `
-            <a href="${d.url}" target="_blank" rel="noopener" style="text-decoration:none; color:inherit; display:block; height:100%;">
-                <div class="jdm-ss-media">
-                    <img src="${d.img}" alt="${d.title} - 100 Ottani Please! Archive" loading="lazy" onload="this.style.opacity=1">
-                </div>
-                <div class="jdm-ss-body">
-                    <div class="jdm-ss-meta-header"><span>${d.source}</span><span>DATABASE REF: ${Math.floor(Math.random()*9000)}</span></div>
-                    <h2 class="jdm-ss-title">${d.title}</h2>
-                    <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>04/17/2026</span></div>
-                    <div class="jdm-ss-footer">
-                        <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
+    function renderNext() {
+        const chunk = images.slice(index, index + 10);
+        chunk.forEach(img => {
+            const layout = pattern[counter % pattern.length];
+            counter++;
+            const article = document.createElement('a');
+            article.href = img.url;
+            article.target = "_blank";
+            article.className = `card ${layout}`;
+            article.innerHTML = `
+                <img src="${img.url}" onload="this.style.opacity=1">
+                <div class="card-content">
+                    <div class="card-title">DATA_REF // ${Math.floor(Math.random()*9999)}</div>
+                    <div class="card-footer">
+                        <span style="font-size:8px; color:#666;">SOURCE: ${img.date || 'DATABASE'}</span>
+                        <div class="view-action">
+                            VIEW <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                        </div>
                     </div>
-                    <div class="jdm-ss-bar"></div>
-                </div>
-            </a>
-        `;
-        return article;
+                </div>`;
+            grid.appendChild(article);
+        });
+        index += 10;
+        
+        // Aspetta un istante che il DOM si aggiorni e invia l'altezza
+        setTimeout(reportHeight, 300);
     }
 
-    // L'Observer ora chiama renderChunk() anziché fare fetch dalle API
-    const observer = new IntersectionObserver(e => { 
-        if(e[0].isIntersecting && allImages.length > 0) renderChunk(); 
-    }, { rootMargin: '600px' });
-    observer.observe(document.getElementById('jdm-load-more-trigger'));
+    // Infinite scroll
+    const observer = new IntersectionObserver(entries => {
+        if(entries[0].isIntersecting && images.length > 0) renderNext();
+    }, { rootMargin: '400px' });
     
-    // Sync height for Fourthwall
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
-        }, 150);
-    });
-    
-    // Avvio iniziale
-    initGallery();
-})();
+    observer.observe(document.getElementById('sentinel'));
+
+    // Monitora i cambiamenti di dimensione (es. immagini che caricano)
+    const ro = new ResizeObserver(reportHeight);
+    ro.observe(document.getElementById('ottani-container'));
+
+    initGallery = loadGallery();
 </script>
 </body>
 </html>
