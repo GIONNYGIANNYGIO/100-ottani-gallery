@@ -41,20 +41,60 @@
 
         @media (max-width: 768px) { #ottani-archive-root { padding: 0 15px; } }
 
-        /* HEADER SECTION */
-        .bt-magazine-header { padding-top: 80px; padding-bottom: 50px; display: flex; flex-direction: column; }
-        .bt-brand-stack { margin-bottom: 35px; }
+        /* HEADER SECTION (ADAPTED FROM BLACKTOP SESSIONS) */
+        .bt-magazine-header { 
+            padding-top: 100px; 
+            padding-bottom: 40px; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .bt-brand-stack { 
+            width: 100%; 
+            margin-bottom: 40px; 
+            overflow: hidden;
+        }
+
         .bt-title-main, .bt-title-outline { 
             font-family: 'Monument Extended', sans-serif !important;
-            font-size: clamp(3.5rem, 11vw, 10rem); font-weight: 900; line-height: 0.82; margin: 0; text-transform: uppercase; letter-spacing: -2px;
+            font-size: clamp(4rem, 12vw, 11rem); 
+            font-weight: 900; 
+            line-height: 0.85; 
+            margin: 0; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            display: block;
+            white-space: nowrap;
         }
+
         .bt-title-main { color: #ffffff; }
-        .bt-title-outline { color: transparent; -webkit-text-stroke: 1.2px rgba(255, 255, 255, 0.25); margin-top: 4px; }
-        .bt-full-divider { width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; }
-        .bt-editorial-text { 
-            font-size: 11px; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; 
-            text-align: right; letter-spacing: 1.5px; line-height: 1.6;
+
+        .bt-title-outline { 
+            color: transparent; 
+            -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3); 
+            margin-top: 5px;
         }
+
+        .bt-full-divider { 
+            width: 100%; 
+            height: 1px; 
+            background: rgba(255, 255, 255, 0.1); 
+            margin-bottom: 30px; 
+        }
+
+        .bt-editorial-text { 
+            font-size: 11px; 
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.5); 
+            text-transform: uppercase; 
+            text-align: right !important; 
+            max-width: 520px;
+            margin-left: auto !important;
+            letter-spacing: 2px;
+            margin-top: 0;
+        }
+
+        .bt-editorial-text b { color: var(--accent); font-weight: 800; }
 
         /* MOSAIC GRID SYSTEM */
         .jdm-ss-mosaic { 
@@ -132,6 +172,8 @@
         @media (max-width: 1024px) { 
             .jdm-ss-mosaic { grid-auto-rows: 350px; }
             [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } 
+            .bt-title-main, .bt-title-outline { font-size: 12.5vw !important; }
+            .bt-magazine-header { padding-top: 50px; }
         }
     </style>
 </head>
@@ -166,7 +208,6 @@
     
     let page = 1, fetching = false, counter = 0;
 
-    // Pattern bilanciati per evitare buchi nella grid
     const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
     const patternB = [...patternA].reverse();
 
@@ -177,7 +218,6 @@
             .replace(/[^A-Z\s]/g, '')
             .split(' ')
             .filter(w => w.length > 3 && !commonWords.includes(w));
-        
         return words.length > 0 ? words.slice(0, 3).map(w => `#${w}`) : ['#JDM', '#STREET'];
     }
 
@@ -198,7 +238,6 @@
                     data.forEach(item => {
                         const title = (i === 0 ? (item.alt_description || item.description) : item.alt) || "JDM VISUAL ARCHIVE";
                         const tags = generateTags(title);
-                        
                         grid.appendChild(createCard({
                             img: i === 0 ? item.urls.regular + "&q=80&w=1200" : item.src.large,
                             title: title,
@@ -213,9 +252,7 @@
             page++;
         } catch (err) {
             console.error("Archive fetch error:", err);
-        } finally { 
-            fetching = false; 
-        }
+        } finally { fetching = false; }
     }
 
     function createCard(d) {
@@ -227,7 +264,7 @@
         a.className = `jdm-ss-card ${style}`;
         a.href = d.url; 
         a.target = "_blank";
-        a.rel = "noopener noreferrer"; // SEO Best Practice
+        a.rel = "noopener noreferrer";
 
         const tagsHtml = d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('');
 
@@ -261,14 +298,12 @@
         return a;
     }
 
-    // Infinite Scroll con soglia anticipata per fluidità
     const observer = new IntersectionObserver(e => { 
         if(e[0].isIntersecting) load(); 
     }, { rootMargin: '400px' });
     
     observer.observe(document.getElementById('jdm-load-more-trigger'));
     
-    // Resize Observer per Fourthwall (Debounced)
     let resizeTimer;
     const sync = () => {
         clearTimeout(resizeTimer);
@@ -278,7 +313,6 @@
     };
     new ResizeObserver(sync).observe(document.body);
 
-    // Initial Load
     load();
 })();
 </script>
