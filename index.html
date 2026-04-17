@@ -39,8 +39,24 @@
             --accent: #FFFF00;
         }
 
-        @media (max-width: 768px) { #ottani-archive-root { padding: 0 15px; } }
+        @media (max-width:768px){
 
+  #ottani-archive-root { 
+    padding: 0 15px; 
+  }
+
+  .bt-magazine-header{
+    padding: 50px 0 20px;
+  }
+
+  .bt-title-main, 
+  .bt-title-outline{
+    font-size: clamp(2.5rem, 10vw, 5rem);
+    line-height: 0.9;
+  }
+
+}
+        
         /* HEADER MAGAZINE */
         .bt-magazine-header { padding: 100px 0 40px; display: flex; flex-direction: column; }
         .bt-brand-stack { width: 100%; margin-bottom: 40px; overflow: hidden; }
