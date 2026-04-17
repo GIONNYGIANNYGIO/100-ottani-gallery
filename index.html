@@ -69,17 +69,25 @@
         /* GRID */
         .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 300px; gap: 15px; } 
 
-        /* CARDS */
+        /* CARDS & LAZY LOADING PERFORMANCE FIXES */
         .jdm-ss-card {
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
+            
+            /* Anti-scatti estremo: evita che il browser calcoli elementi non visibili */
+            content-visibility: auto;
+            contain: style layout;
         }
+        
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 10; }
         .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; background: #000; }
+        
         .jdm-ss-media img { 
             width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); 
-            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 0; /* Partono invisibili per il fade-in */
+            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), filter 0.6s;
+            will-change: transform, opacity;
         }
 
         .jdm-ss-body {
@@ -87,7 +95,9 @@
             padding: 18px; box-sizing: border-box; background: #0a0a0a;
             transform: translateY(100%); opacity: 0;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 3;
+            will-change: transform, opacity;
         }
+        
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
         .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
 
@@ -135,7 +145,6 @@
 
 <script>
 (function() {
-    // API KEYS - Pixabay aggiunta
     const KEYS = { 
         U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", 
         P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
@@ -145,6 +154,9 @@
     let page = 1, fetching = false, counter = 0;
     const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
     const patternB = [...patternA].reverse();
+
+    // Filtro rigoroso per escludere immagini di persone
+    const BANNED_WORDS = ['MAN', 'WOMAN', 'MEN', 'WOMEN', 'GIRL', 'BOY', 'PERSON', 'PEOPLE', 'MODEL'];
 
     function generateTags(str) {
         if (!str) return ['#JDM', '#CORE'];
@@ -159,36 +171,55 @@
         
         try {
             const res = await Promise.allSettled([
-                fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&per_page=8&client_id=${KEYS.U}`).then(r => r.json()),
-                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=8&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json()),
-                fetch(`https://pixabay.com/api/?key=${KEYS.PX}&q=${encodeURIComponent(q)}&image_type=photo&page=${page}&per_page=8`).then(r => r.json())
+                fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&per_page=12&client_id=${KEYS.U}`).then(r => r.json()),
+                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json()),
+                fetch(`https://pixabay.com/api/?key=${KEYS.PX}&q=${encodeURIComponent(q)}&image_type=photo&page=${page}&per_page=12`).then(r => r.json())
             ]);
 
             const grid = document.getElementById('jdm-engine-grid');
             
-            res.forEach((r, idx) => {
-                if (r.status !== 'fulfilled') return;
-                let items = [];
-                
-                if (idx === 0) items = r.value.results || []; // Unsplash
-                if (idx === 1) items = r.value.photos || [];  // Pexels
-                if (idx === 2) items = r.value.hits || [];    // Pixabay
+            // Estrazione Array
+            const uData = res[0].status === 'fulfilled' ? (res[0].value.results || []) : [];
+            const pData = res[1].status === 'fulfilled' ? (res[1].value.photos || []) : [];
+            const pxData = res[2].status === 'fulfilled' ? (res[2].value.hits || []) : [];
 
-                items.forEach(item => {
-                    let d = { source: 'UNSPLASH', title: '', author: '', img: '', url: '', tags: [] };
+            // Formattazione standardizzata
+            const formatData = (item, source) => {
+                if (source === 'UNSPLASH') return { source, title: item.alt_description || item.description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
+                if (source === 'PEXELS') return { source, title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
+                if (source === 'PIXABAY') return { source, title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
+            };
+
+            const uList = uData.map(i => formatData(i, 'UNSPLASH'));
+            const pList = pData.map(i => formatData(i, 'PEXELS'));
+            const pxList = pxData.map(i => formatData(i, 'PIXABAY'));
+
+            const maxLength = Math.max(uList.length, pList.length, pxList.length);
+
+            // MIXER LOOP: 1 Unsplash, 1 Pixabay, 1 Pexels
+            for (let i = 0; i < maxLength; i++) {
+                const group = [];
+                if (uList[i]) group.push(uList[i]);
+                if (pxList[i]) group.push(pxList[i]);
+                if (pList[i]) group.push(pList[i]);
+
+                group.forEach(d => {
+                    if (!d.title) return;
                     
-                    if (idx === 0) {
-                        d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
-                    } else if (idx === 1) {
-                        d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
-                    } else {
-                        d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
-                    }
-                    
+                    const titleUpper = d.title.toUpperCase();
                     d.tags = generateTags(d.title);
-                    grid.appendChild(createCard(d));
+                    
+                    // Controllo Anti-Umani
+                    const hasBannedContent = BANNED_WORDS.some(word => 
+                        titleUpper.includes(word) || d.tags.includes(`#${word}`)
+                    );
+
+                    // Se passa il filtro, aggiungi alla griglia
+                    if (!hasBannedContent) {
+                        grid.appendChild(createCard(d));
+                    }
                 });
-            });
+            }
             page++;
         } catch (err) { console.error("Fetch error:", err); } 
         finally { fetching = false; }
@@ -199,13 +230,14 @@
         const style = pattern[counter % 10];
         counter++;
 
-        const article = document.createElement('article'); // SEO: Article tag
+        const article = document.createElement('article');
         article.className = `jdm-ss-card ${style}`;
         
+        // onload="this.style.opacity=1" combinato col CSS rimuove il caricamento a scatti
         article.innerHTML = `
             <a href="${d.url}" target="_blank" rel="noopener" style="text-decoration:none; color:inherit; display:block; height:100%;">
                 <div class="jdm-ss-media">
-                    <img src="${d.img}" alt="${d.title} - 100 Ottani Please! Archive" loading="lazy">
+                    <img src="${d.img}" alt="${d.title} - 100 Ottani Please! Archive" loading="lazy" onload="this.style.opacity=1">
                 </div>
                 <div class="jdm-ss-body">
                     <div class="jdm-ss-meta-header"><span>${d.source}</span><span>DATABASE REF: ${Math.floor(Math.random()*9000)}</span></div>
@@ -220,16 +252,3 @@
         `;
         return article;
     }
-
-    const observer = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
-    observer.observe(document.getElementById('jdm-load-more-trigger'));
-    
-    // Sync height for Fourthwall
-    window.addEventListener('resize', () => {
-        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
-    });
-    load();
-})();
-</script>
-</body>
-</html>
