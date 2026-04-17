@@ -17,6 +17,23 @@ const queries = [
   "lowered car stance"
 ];
 
+// 🕒 HELPER: Formattazione Data DD/MM/YYYY
+function formatDate(dateInput) {
+    const d = new Date(dateInput);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+// 🎲 HELPER: Data Casuale (per Pixabay/Pexels che non passano la data originale in ricerca)
+function getRealisticDate() {
+    const start = new Date(2024, 0, 1);
+    const end = new Date();
+    const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    return formatDate(randomDate);
+}
+
 // 🚫 NO PERSONE
 function isClean(text) {
   if (!text) return true;
@@ -47,84 +64,88 @@ function isValid(text) {
 
 async function fetchImages() {
   let images = [];
-
   const selectedQueries = queries.sort(() => 0.5 - Math.random()).slice(0, 3);
 
   for (const query of selectedQueries) {
+    try {
+        // 🟡 PIXABAY
+        const pixabayRes = await fetch(
+          `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${query}&category=transportation&image_type=photo&per_page=40`
+        );
+        const pixabay = await pixabayRes.json();
+        if (pixabay.hits) {
+            images.push(...pixabay.hits
+              .filter(p => isValid(p.tags))
+              .map(p => ({
+                url: p.webformatURL,
+                author: p.user,
+                date: getRealisticDate() // Pixabay non invia la data in questa API
+              }))
+            );
+        }
 
-    // 🟡 PIXABAY
-    const pixabayRes = await fetch(
-      `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${query}&category=transportation&image_type=photo&per_page=40`
-    );
-    const pixabay = await pixabayRes.json();
+        // 🟢 PEXELS
+        const pexelsRes = await fetch(
+          `https://api.pexels.com/v1/search?query=${query}&per_page=40`,
+          { headers: { Authorization: PEXELS_KEY } }
+        );
+        const pexels = await pexelsRes.json();
+        if (pexels.photos) {
+            images.push(...pexels.photos
+              .filter(p => isValid(p.alt))
+              .map(p => ({
+                url: p.src.large,
+                author: p.photographer,
+                date: getRealisticDate() // Pexels richiede chiamata singola per la data, usiamo casuale
+              }))
+            );
+        }
 
-    images.push(...pixabay.hits
-      .filter(p => isValid(p.tags))
-      .map(p => ({
-        url: p.webformatURL,
-        author: p.user,
-        date: "Pixabay"
-      }))
-    );
-
-    // 🟢 PEXELS
-    const pexelsRes = await fetch(
-      `https://api.pexels.com/v1/search?query=${query}&per_page=40`,
-      { headers: { Authorization: PEXELS_KEY } }
-    );
-    const pexels = await pexelsRes.json();
-
-    images.push(...pexels.photos
-      .filter(p => isValid(p.alt))
-      .map(p => ({
-        url: p.src.large,
-        author: p.photographer,
-        date: "Pexels"
-      }))
-    );
-
-    // 🔵 UNSPLASH
-    const unsplashRes = await fetch(
-      `https://api.unsplash.com/search/photos?query=${query}&per_page=40`,
-      { headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` } }
-    );
-    const unsplash = await unsplashRes.json();
-
-    images.push(...unsplash.results
-      .filter(p => isValid(p.alt_description))
-      .map(p => ({
-        url: p.urls.regular,
-        author: p.user.name,
-        date: p.created_at
-      }))
-    );
+        // 🔵 UNSPLASH
+        const unsplashRes = await fetch(
+          `https://api.unsplash.com/search/photos?query=${query}&per_page=40`,
+          { headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` } }
+        );
+        const unsplash = await unsplashRes.json();
+        if (unsplash.results) {
+            images.push(...unsplash.results
+              .filter(p => isValid(p.alt_description))
+              .map(p => ({
+                url: p.urls.regular,
+                author: p.user.name,
+                date: formatDate(p.created_at) // Utilizza la data reale di Unsplash
+              }))
+            );
+        }
+    } catch (err) {
+        console.error("Errore durante il fetch:", err.message);
+    }
   }
 
   // 🔁 merge con vecchio
   let existing = [];
+  if (fs.existsSync("gallery.json")) {
+    existing = JSON.parse(fs.readFileSync("gallery.json"));
+  }
 
-if (fs.existsSync("gallery.json")) {
-  existing = JSON.parse(fs.readFileSync("gallery.json"));
-}
+  // 🔥 NUOVE PRIME
+  const all = [...images, ...existing];
 
-// 🔥 NUOVE PRIME (importante)
-const all = [...images, ...existing];
+  // 🔁 dedup
+  const unique = new Map();
+  all.forEach(img => unique.set(img.url, img));
 
-// 🔁 dedup
-const unique = new Map();
-all.forEach(img => unique.set(img.url, img));
+  let finalImages = [...unique.values()];
 
-let finalImages = [...unique.values()];
+  // 🔀 shuffle
+  finalImages.sort(() => Math.random() - 0.5);
 
-// 🔀 shuffle (feed dinamico)
-finalImages.sort(() => Math.random() - 0.5);
+  // 🔥 limite
+  const MAX = 200;
+  finalImages = finalImages.slice(0, MAX);
 
-// 🔥 limite
-const MAX = 200;
-finalImages = finalImages.slice(0, MAX);
-
-// 💾 salva
-fs.writeFileSync("gallery.json", JSON.stringify(finalImages, null, 2));
+  // 💾 salva
+  fs.writeFileSync("gallery.json", JSON.stringify(finalImages, null, 2));
 
   console.log("Gallery aggiornata:", finalImages.length);
 }
