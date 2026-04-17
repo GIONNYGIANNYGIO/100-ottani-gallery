@@ -76,7 +76,7 @@
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
         .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
 
-        /* FRECCIA PERFETTAMENTE ALLINEATA */
+        /* FIX ALLINEAMENTO FRECCIA */
         .arrow-link { 
             display: flex; 
             align-items: center; 
@@ -85,24 +85,25 @@
             font-weight: 900; 
             color: #555; 
             transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
-            line-height: 1; /* Rimuove spazio extra sotto il testo */
+            line-height: 1;
         }
         .arrow-icon { 
-            width: 11px; 
-            height: 11px; 
+            width: 10px; 
+            height: 10px; 
             stroke: currentColor; 
-            stroke-width: 3.5; 
+            stroke-width: 4; 
             fill: none; 
             transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); 
             will-change: transform;
-            /* Nudge correttivo per pareggiare l'altezza ottica con il font */
-            transform: translateY(-0.5px); 
+            /* Spinta verso il basso per pareggiare la riga di VIEW */
+            transform: translateY(1.5px); 
         }
         
         .jdm-ss-card:hover .arrow-link { color: var(--accent); }
-        .jdm-ss-card:hover .arrow-icon { transform: translate(3px, -3px); }
+        /* Sommiamo l'animazione al posizionamento iniziale */
+        .jdm-ss-card:hover .arrow-icon { transform: translate(3px, -1.5px); }
 
-        .jdm-ss-tag-container { display: flex; gap: 8px; }
+        .jdm-ss-tag-container { display: flex; gap: 8px; flex-wrap: wrap; }
         .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
         
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
@@ -125,8 +126,7 @@
                 <h1 class="bt-title-outline">ARCHIVE</h1>
             </div>
             <div class="bt-full-divider"></div>
-            <p class="bt-editorial-text">CURATED <b>JDM VISUAL ARCHIVE</b>, EXPLORING GLOBAL <b>CAR CULTURE</b><br>
-    THROUGH CONTINUOUS <b>DIGITAL DOCUMENTATION</b></p>
+            <p class="bt-editorial-text">CURATED <b>JDM VISUAL ARCHIVE</b>, EXPLORING GLOBAL <b>CAR CULTURE</b></p>
         </header>
         <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
         <div id="jdm-load-more-trigger" style="height: 100px;"></div>
@@ -139,16 +139,16 @@
         const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
         const patternB = [...patternA].reverse();
 
-        // Estrazione tag intelligente: puliti e max 3
-        function extractTags(title) {
+        // Estrazione tag migliorata: no underscore, pulizia totale, max 3 parole
+        function getTags(title) {
             if (!title) return ['#JDM'];
-            return title
-                .replace(/_/g, ' ') // Rimuove underscore
-                .replace(/[^a-zA-Z0-9 ]/g, '') // Rimuove caratteri speciali
-                .split(' ')
-                .filter(w => w.length > 3) // Solo parole di senso compiuto
-                .slice(0, 3)
-                .map(w => `#${w.toUpperCase()}`);
+            const words = title
+                .replace(/_/g, ' ') 
+                .replace(/[^a-zA-Z0-9 ]/g, '')
+                .split(/\s+/)
+                .filter(w => w.length > 3)
+                .slice(0, 3);
+            return words.map(w => `#${w.toUpperCase()}`);
         }
 
         async function load() {
@@ -162,21 +162,21 @@
                 ]);
 
                 const grid = document.getElementById('jdm-engine-grid');
-                const fragment = document.createDocumentFragment();
+                const frag = document.createDocumentFragment();
 
                 res.forEach((r, idx) => {
                     if (r.status !== 'fulfilled') return;
                     let items = (idx === 0) ? r.value.results : (idx === 1) ? r.value.photos : r.value.hits;
                     (items || []).forEach(item => {
                         let d = {};
-                        if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM STYLE", author: item.user.name, img: item.urls.regular, url: item.links.html };
-                        else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET BUILD", author: item.photographer, img: item.src.large, url: item.url };
+                        if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
+                        else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
                         else d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
-                        fragment.appendChild(createCard(d));
+                        frag.appendChild(createCard(d));
                     });
                 });
                 
-                grid.appendChild(fragment);
+                grid.appendChild(frag);
                 page++;
                 window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
             } catch (e) {} finally { fetching = false; }
@@ -186,7 +186,7 @@
             const style = (Math.floor(counter / 10) % 2 === 0 ? patternA : patternB)[counter % 10];
             counter++;
             
-            const tags = extractTags(d.title);
+            const tags = getTags(d.title);
             const tagHTML = tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('');
 
             const article = document.createElement('article');
