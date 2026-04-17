@@ -33,6 +33,7 @@
 
         #ottani-archive-root {
             width: 100%;
+            min-height:100vh;
             padding: 0 30px;
             box-sizing: border-box;
             --accent: #FFFF00;
@@ -109,10 +110,11 @@
         @media (max-width: 1024px) { [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } }
     /* LOADER FULL PAGE */
 #jdm-page-loader{
-    position:fixed;
+    position:absolute;
     inset:0;
-    background: #111214;
-backdrop-filter: blur(6px);
+    min-height:100vh;
+    width:100%;
+    background:#111214;
     display:flex;
     align-items:center;
     justify-content:center;
