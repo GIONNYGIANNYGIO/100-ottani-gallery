@@ -65,6 +65,7 @@
             padding: 18px; box-sizing: border-box; background: #0a0a0a;
             transform: translateY(100%); opacity: 0;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 3;
+            will-change: transform, opacity;
         }
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
         .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
@@ -75,9 +76,28 @@
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
         .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
 
-        /* FRECCIA ALLINEATA E ANIMATA */
-        .arrow-link { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 900; color: #555; transition: 0.3s; line-height: 1; }
-        .arrow-icon { width: 12px; height: 12px; stroke: currentColor; stroke-width: 3; fill: none; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; }
+        /* FRECCIA PERFETTAMENTE ALLINEATA */
+        .arrow-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-size: 10px; 
+            font-weight: 900; 
+            color: #555; 
+            transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
+            line-height: 1; /* Rimuove spazio extra sotto il testo */
+        }
+        .arrow-icon { 
+            width: 11px; 
+            height: 11px; 
+            stroke: currentColor; 
+            stroke-width: 3.5; 
+            fill: none; 
+            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); 
+            will-change: transform;
+            /* Nudge correttivo per pareggiare l'altezza ottica con il font */
+            transform: translateY(-0.5px); 
+        }
         
         .jdm-ss-card:hover .arrow-link { color: var(--accent); }
         .jdm-ss-card:hover .arrow-icon { transform: translate(3px, -3px); }
@@ -118,16 +138,16 @@
         const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
         const patternB = [...patternA].reverse();
 
-        // Funzione per estrarre tag intelligenti dal titolo
-        function getSmartTags(title) {
+        // Estrazione tag intelligente: puliti e max 3
+        function extractTags(title) {
             if (!title) return ['#JDM'];
             return title
                 .replace(/_/g, ' ') // Rimuove underscore
-                .replace(/[^\w\s]/gi, '') // Rimuove simboli speciali
-                .split(/\s+/) // Divide in parole
-                .filter(word => word.length > 2) // Solo parole significative
-                .slice(0, 3) // Massimo 3 tag
-                .map(word => `#${word.toUpperCase()}`);
+                .replace(/[^a-zA-Z0-9 ]/g, '') // Rimuove caratteri speciali
+                .split(' ')
+                .filter(w => w.length > 3) // Solo parole di senso compiuto
+                .slice(0, 3)
+                .map(w => `#${w.toUpperCase()}`);
         }
 
         async function load() {
@@ -141,15 +161,15 @@
                 ]);
 
                 const grid = document.getElementById('jdm-engine-grid');
-                const fragment = document.createDocumentFragment(); // Ottimizzazione: usa fragment per evitare reflow continui
+                const fragment = document.createDocumentFragment();
 
                 res.forEach((r, idx) => {
                     if (r.status !== 'fulfilled') return;
                     let items = (idx === 0) ? r.value.results : (idx === 1) ? r.value.photos : r.value.hits;
                     (items || []).forEach(item => {
                         let d = {};
-                        if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
-                        else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
+                        if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM STYLE", author: item.user.name, img: item.urls.regular, url: item.links.html };
+                        else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET BUILD", author: item.photographer, img: item.src.large, url: item.url };
                         else d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
                         fragment.appendChild(createCard(d));
                     });
@@ -165,7 +185,7 @@
             const style = (Math.floor(counter / 10) % 2 === 0 ? patternA : patternB)[counter % 10];
             counter++;
             
-            const tags = getSmartTags(d.title);
+            const tags = extractTags(d.title);
             const tagHTML = tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('');
 
             const article = document.createElement('article');
