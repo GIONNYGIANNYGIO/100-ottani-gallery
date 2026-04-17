@@ -145,84 +145,76 @@
 
 <script>
 (function() {
-    const KEYS = { 
-        U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", 
-        P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
-        PX: "55464526-8c1ed1d759c73669d0c1f38ab"
-    };
-    
-    let page = 1, fetching = false, counter = 0;
+    let allImages = [];
+    let currentIndex = 0;
+    const CHUNK_SIZE = 12; // Carica 12 foto a scorrimento per prestazioni massime
+    let counter = 0;
+
     const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
     const patternB = [...patternA].reverse();
 
-    // Filtro rigoroso per escludere immagini di persone
-    const BANNED_WORDS = ['MAN', 'WOMAN', 'MEN', 'WOMEN', 'GIRL', 'BOY', 'PERSON', 'PEOPLE', 'MODEL'];
+    // Poiché il Node.js non salva titolo e tag, generiamo un'estetica coerente qui sul frontend
+    const aestheticTitles = ["STREET STANCE", "MIDNIGHT RUNNER", "WIDEBODY BUILD", "JDM CULTURE", "TRACK WEAPON", "TOKYO DRIFT", "STATIC DROP", "PERFORMANCE TUNING"];
+    const aestheticTags = ['#JDM', '#STANCE', '#DRIFT', '#STREET', '#CULTURE', '#NIGHT', '#RACING', '#TUNED', '#CORE', '#AERO'];
 
-    function generateTags(str) {
-        if (!str) return ['#JDM', '#CORE'];
-        const stop = ['A', 'THE', 'OF', 'IN', 'WITH', 'AND', 'PHOTO', 'IMAGE', 'SOME', 'CAR', 'CARS'];
-        return str.toUpperCase().replace(/[^A-Z\s]/g, '').split(' ')
-            .filter(w => w.length > 3 && !stop.includes(w)).slice(0, 3).map(w => `#${w}`);
+    function getRandomElements(arr, n) {
+        let result = new Array(n), len = arr.length, taken = new Array(len);
+        while (n--) {
+            let x = Math.floor(Math.random() * len);
+            result[n] = arr[x in taken ? taken[x] : x];
+            taken[x] = --len in taken ? taken[len] : len;
+        }
+        return result;
     }
 
-    async function load() {
-        if (fetching) return; fetching = true;
-        const q = "jdm performance tuning cars street night";
-        
+    async function initGallery() {
         try {
-            const res = await Promise.allSettled([
-                fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&per_page=12&client_id=${KEYS.U}`).then(r => r.json()),
-                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=12&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json()),
-                fetch(`https://pixabay.com/api/?key=${KEYS.PX}&q=${encodeURIComponent(q)}&image_type=photo&page=${page}&per_page=12`).then(r => r.json())
-            ]);
+            // Legge il file statico compilato dal Node.js (Velocità istantanea)
+            const res = await fetch('gallery.json');
+            if (!res.ok) throw new Error("File gallery.json non trovato.");
+            allImages = await res.json();
+            renderChunk(); // Mostra le prime foto
+        } catch (err) {
+            console.error("Errore caricamento database:", err);
+            document.getElementById('jdm-load-more-trigger').innerHTML = `<span style="font-size: 8px; color: red; letter-spacing: 4px;">DATABASE OFFLINE</span>`;
+        }
+    }
 
-            const grid = document.getElementById('jdm-engine-grid');
+    function renderChunk() {
+        if (currentIndex >= allImages.length) {
+            const trigger = document.getElementById('jdm-load-more-trigger');
+            if(trigger) trigger.innerHTML = `<span style="font-size: 8px; color: #555; letter-spacing: 4px; font-weight: 800;">END OF ARCHIVE</span>`;
+            return;
+        }
+
+        const grid = document.getElementById('jdm-engine-grid');
+        const chunk = allImages.slice(currentIndex, currentIndex + CHUNK_SIZE);
+
+        chunk.forEach(item => {
+            const randomTitle = aestheticTitles[Math.floor(Math.random() * aestheticTitles.length)];
+            const randomTags = getRandomElements(aestheticTags, 3);
             
-            // Estrazione Array
-            const uData = res[0].status === 'fulfilled' ? (res[0].value.results || []) : [];
-            const pData = res[1].status === 'fulfilled' ? (res[1].value.photos || []) : [];
-            const pxData = res[2].status === 'fulfilled' ? (res[2].value.hits || []) : [];
+            // Format stringa sorgente
+            let sourceText = "ARCHIVE";
+            if (item.date) {
+                if (item.date.includes("Pixabay")) sourceText = "PIXABAY";
+                else if (item.date.includes("Pexels")) sourceText = "PEXELS";
+                else sourceText = "UNSPLASH";
+            }
 
-            // Formattazione standardizzata
-            const formatData = (item, source) => {
-                if (source === 'UNSPLASH') return { source, title: item.alt_description || item.description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
-                if (source === 'PEXELS') return { source, title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
-                if (source === 'PIXABAY') return { source, title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
+            const d = {
+                source: sourceText,
+                title: randomTitle,
+                author: item.author || "UNKNOWN",
+                img: item.url,
+                url: item.url,
+                tags: randomTags
             };
 
-            const uList = uData.map(i => formatData(i, 'UNSPLASH'));
-            const pList = pData.map(i => formatData(i, 'PEXELS'));
-            const pxList = pxData.map(i => formatData(i, 'PIXABAY'));
+            grid.appendChild(createCard(d));
+        });
 
-            const maxLength = Math.max(uList.length, pList.length, pxList.length);
-
-            // MIXER LOOP: 1 Unsplash, 1 Pixabay, 1 Pexels
-            for (let i = 0; i < maxLength; i++) {
-                const group = [];
-                if (uList[i]) group.push(uList[i]);
-                if (pxList[i]) group.push(pxList[i]);
-                if (pList[i]) group.push(pList[i]);
-
-                group.forEach(d => {
-                    if (!d.title) return;
-                    
-                    const titleUpper = d.title.toUpperCase();
-                    d.tags = generateTags(d.title);
-                    
-                    // Controllo Anti-Umani
-                    const hasBannedContent = BANNED_WORDS.some(word => 
-                        titleUpper.includes(word) || d.tags.includes(`#${word}`)
-                    );
-
-                    // Se passa il filtro, aggiungi alla griglia
-                    if (!hasBannedContent) {
-                        grid.appendChild(createCard(d));
-                    }
-                });
-            }
-            page++;
-        } catch (err) { console.error("Fetch error:", err); } 
-        finally { fetching = false; }
+        currentIndex += CHUNK_SIZE;
     }
 
     function createCard(d) {
@@ -233,7 +225,6 @@
         const article = document.createElement('article');
         article.className = `jdm-ss-card ${style}`;
         
-        // onload="this.style.opacity=1" combinato col CSS rimuove il caricamento a scatti
         article.innerHTML = `
             <a href="${d.url}" target="_blank" rel="noopener" style="text-decoration:none; color:inherit; display:block; height:100%;">
                 <div class="jdm-ss-media">
@@ -241,7 +232,7 @@
                 </div>
                 <div class="jdm-ss-body">
                     <div class="jdm-ss-meta-header"><span>${d.source}</span><span>DATABASE REF: ${Math.floor(Math.random()*9000)}</span></div>
-                    <h2 class="jdm-ss-title">${d.title.substring(0, 40)}</h2>
+                    <h2 class="jdm-ss-title">${d.title}</h2>
                     <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>04/17/2026</span></div>
                     <div class="jdm-ss-footer">
                         <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
@@ -252,3 +243,25 @@
         `;
         return article;
     }
+
+    // L'Observer ora chiama renderChunk() anziché fare fetch dalle API
+    const observer = new IntersectionObserver(e => { 
+        if(e[0].isIntersecting && allImages.length > 0) renderChunk(); 
+    }, { rootMargin: '600px' });
+    observer.observe(document.getElementById('jdm-load-more-trigger'));
+    
+    // Sync height for Fourthwall
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+        }, 150);
+    });
+    
+    // Avvio iniziale
+    initGallery();
+})();
+</script>
+</body>
+</html>
