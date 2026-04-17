@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery Archive | 100 Ottani Please!™</title>
+    <script type="application/ld+json" id="jdm-schema-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "ImageGallery",
+      "name": "100 Ottani JDM Gallery Archive",
+      "description": "Curated JDM Visual Archive, exploring global car culture.",
+      "url": "https://tuosito.com",
+      "image": []
+    }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
         @font-face {
@@ -76,36 +86,19 @@
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
         .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
 
-        /* FIX ALLINEAMENTO FRECCIA */
-        .arrow-link { 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-            font-size: 10px; 
-            font-weight: 900; 
-            color: #555; 
-            transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
-            line-height: 1;
-        }
+        /* ALLINEAMENTO FRECCIA */
+        .arrow-link { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 900; color: #555; transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1); line-height: 1; }
         .arrow-icon { 
-            width: 10px; 
-            height: 10px; 
-            stroke: currentColor; 
-            stroke-width: 4; 
-            fill: none; 
-            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); 
-            will-change: transform;
-            /* Spinta verso il basso per pareggiare la riga di VIEW */
+            width: 10px; height: 10px; stroke: currentColor; stroke-width: 4; fill: none; 
+            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); will-change: transform;
             transform: translateY(1.5px); 
         }
         
         .jdm-ss-card:hover .arrow-link { color: var(--accent); }
-        /* Sommiamo l'animazione al posizionamento iniziale */
         .jdm-ss-card:hover .arrow-icon { transform: translate(3px, -1.5px); }
 
         .jdm-ss-tag-container { display: flex; gap: 8px; flex-wrap: wrap; }
         .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
-        
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
         .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
@@ -113,17 +106,15 @@
         .wide { grid-column: span 8; }
         .narrow { grid-column: span 4; }
 
-        @media (max-width: 1024px) { 
-            [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } 
-        }
+        @media (max-width: 1024px) { [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } }
     </style>
 </head>
 <body>
     <div id="ottani-archive-root">
         <header class="bt-magazine-header">
             <div class="bt-brand-stack">
-                <h1 class="bt-title-main">GALLERY</h1>
-                <h1 class="bt-title-outline">ARCHIVE</h1>
+                <h1 class="bt-title-main">VISUAL</h1>
+                <h1 class="bt-title-outline">OVERDRIVE</h1>
             </div>
             <div class="bt-full-divider"></div>
             <p class="bt-editorial-text">CURATED <b>JDM VISUAL ARCHIVE</b>, EXPLORING GLOBAL <b>CAR CULTURE</b><br>
@@ -140,16 +131,26 @@
         const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
         const patternB = [...patternA].reverse();
 
-        // Estrazione tag migliorata: no underscore, pulizia totale, max 3 parole
+        // Riferimento al JSON-LD per aggiornamento SEO
+        const schemaElement = document.getElementById('jdm-schema-data');
+        const schema = JSON.parse(schemaElement.innerText);
+
+        function updateSchema(data) {
+            schema.image.push({
+                "@type": "ImageObject",
+                "contentUrl": data.img,
+                "name": data.title,
+                "author": {
+                    "@type": "Person",
+                    "name": data.author
+                }
+            });
+            schemaElement.innerText = JSON.stringify(schema);
+        }
+
         function getTags(title) {
             if (!title) return ['#JDM'];
-            const words = title
-                .replace(/_/g, ' ') 
-                .replace(/[^a-zA-Z0-9 ]/g, '')
-                .split(/\s+/)
-                .filter(w => w.length > 3)
-                .slice(0, 3);
-            return words.map(w => `#${w.toUpperCase()}`);
+            return title.replace(/_/g, ' ').replace(/[^a-zA-Z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 3).slice(0, 3).map(w => `#${w.toUpperCase()}`);
         }
 
         async function load() {
@@ -173,6 +174,9 @@
                         if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
                         else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
                         else d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
+                        
+                        // Aggiorna schema SEO backend
+                        updateSchema(d);
                         frag.appendChild(createCard(d));
                     });
                 });
@@ -186,7 +190,6 @@
         function createCard(d) {
             const style = (Math.floor(counter / 10) % 2 === 0 ? patternA : patternB)[counter % 10];
             counter++;
-            
             const tags = getTags(d.title);
             const tagHTML = tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('');
 
@@ -194,7 +197,7 @@
             article.className = `jdm-ss-card ${style}`;
             article.innerHTML = `
                 <a href="${d.url}" target="_blank" style="text-decoration:none; color:inherit; display:block; height:100%;">
-                    <div class="jdm-ss-media"><img src="${d.img}" loading="lazy"></div>
+                    <div class="jdm-ss-media"><img src="${d.img}" loading="lazy" alt="${d.title}"></div>
                     <div class="jdm-ss-body">
                         <div class="jdm-ss-meta-header"><span>${d.source}</span><span>REF: ${Math.floor(Math.random()*9000)}</span></div>
                         <h2 class="jdm-ss-title">${d.title.substring(0, 35)}</h2>
