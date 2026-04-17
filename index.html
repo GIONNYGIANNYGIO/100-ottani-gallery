@@ -54,6 +54,7 @@
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
+            will-change: transform, border-color;
         }
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 10; }
         .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; }
@@ -74,13 +75,16 @@
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
         .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
 
-        /* FRECCIA DINAMICA RICHIESTA */
-        .arrow-link { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 900; color: #555; transition: 0.3s; }
-        .arrow-icon { width: 14px; height: 14px; stroke: currentColor; stroke-width: 3; fill: none; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+        /* FRECCIA ALLINEATA E ANIMATA */
+        .arrow-link { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 900; color: #555; transition: 0.3s; line-height: 1; }
+        .arrow-icon { width: 12px; height: 12px; stroke: currentColor; stroke-width: 3; fill: none; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; }
+        
         .jdm-ss-card:hover .arrow-link { color: var(--accent); }
-        .jdm-ss-card:hover .arrow-icon { transform: translate(4px, -4px); }
+        .jdm-ss-card:hover .arrow-icon { transform: translate(3px, -3px); }
 
+        .jdm-ss-tag-container { display: flex; gap: 8px; }
         .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
+        
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
         .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
@@ -114,6 +118,18 @@
         const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
         const patternB = [...patternA].reverse();
 
+        // Funzione per estrarre tag intelligenti dal titolo
+        function getSmartTags(title) {
+            if (!title) return ['#JDM'];
+            return title
+                .replace(/_/g, ' ') // Rimuove underscore
+                .replace(/[^\w\s]/gi, '') // Rimuove simboli speciali
+                .split(/\s+/) // Divide in parole
+                .filter(word => word.length > 2) // Solo parole significative
+                .slice(0, 3) // Massimo 3 tag
+                .map(word => `#${word.toUpperCase()}`);
+        }
+
         async function load() {
             if (fetching) return; fetching = true;
             try {
@@ -125,6 +141,8 @@
                 ]);
 
                 const grid = document.getElementById('jdm-engine-grid');
+                const fragment = document.createDocumentFragment(); // Ottimizzazione: usa fragment per evitare reflow continui
+
                 res.forEach((r, idx) => {
                     if (r.status !== 'fulfilled') return;
                     let items = (idx === 0) ? r.value.results : (idx === 1) ? r.value.photos : r.value.hits;
@@ -133,9 +151,11 @@
                         if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
                         else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
                         else d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
-                        grid.appendChild(createCard(d));
+                        fragment.appendChild(createCard(d));
                     });
                 });
+                
+                grid.appendChild(fragment);
                 page++;
                 window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
             } catch (e) {} finally { fetching = false; }
@@ -144,6 +164,10 @@
         function createCard(d) {
             const style = (Math.floor(counter / 10) % 2 === 0 ? patternA : patternB)[counter % 10];
             counter++;
+            
+            const tags = getSmartTags(d.title);
+            const tagHTML = tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('');
+
             const article = document.createElement('article');
             article.className = `jdm-ss-card ${style}`;
             article.innerHTML = `
@@ -154,7 +178,7 @@
                         <h2 class="jdm-ss-title">${d.title.substring(0, 35)}</h2>
                         <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>04/17/2026</span></div>
                         <div class="jdm-ss-footer">
-                            <span class="jdm-ss-tag">#JDM_CORE</span>
+                            <div class="jdm-ss-tag-container">${tagHTML}</div>
                             <div class="arrow-link">
                                 <span>VIEW</span>
                                 <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
