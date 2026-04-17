@@ -111,7 +111,8 @@
 #jdm-page-loader{
     position:fixed;
     inset:0;
-    background:#000;
+    background: transparent;
+backdrop-filter: blur(6px);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -120,21 +121,31 @@
 }
 
 .jdm-loader-text{
-    color:#FFFF00;
-    font-family:'Monument Extended', sans-serif;
-    font-size:20px;
-    letter-spacing:2px;
+    display:none;
 }
 
 #jdm-page-loader.hide{
     opacity:0;
     pointer-events:none;
 }
+        .jdm-spinner{
+    width:50px;
+    height:50px;
+    border:3px solid rgba(255,255,255,0.1);
+    border-top:3px solid #FFFF00;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
     </style>
 </head>
 <body>
     <div id="jdm-page-loader">
-  <div class="jdm-loader-text">LOADING VISUAL</div>
+  <div class="jdm-spinner"></div>
 </div>
     <div id="ottani-archive-root">
         <header class="bt-magazine-header">
