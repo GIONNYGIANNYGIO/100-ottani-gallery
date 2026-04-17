@@ -131,11 +131,15 @@
         const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
         const patternB = [...patternA].reverse();
 
-        // Riferimento al JSON-LD per aggiornamento SEO
+        // SEO Schema Reference
         const schemaElement = document.getElementById('jdm-schema-data');
-        const schema = JSON.parse(schemaElement.innerText);
+        let schema = { image: [] };
+        if (schemaElement && schemaElement.innerText) {
+            try { schema = JSON.parse(schemaElement.innerText); } catch(e) {}
+        }
 
         function updateSchema(data) {
+            if (!schemaElement) return;
             schema.image.push({
                 "@type": "ImageObject",
                 "contentUrl": data.img,
@@ -146,6 +150,23 @@
                 }
             });
             schemaElement.innerText = JSON.stringify(schema);
+        }
+
+        // DATE HELPERS
+        function formatDate(dateInput) {
+            if (!dateInput) return "00/00/0000";
+            const d = new Date(dateInput);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function getRealisticDate() {
+            const start = new Date(2024, 0, 1);
+            const end = new Date();
+            const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+            return formatDate(randomDate);
         }
 
         function getTags(title) {
@@ -171,11 +192,16 @@
                     let items = (idx === 0) ? r.value.results : (idx === 1) ? r.value.photos : r.value.hits;
                     (items || []).forEach(item => {
                         let d = {};
-                        if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
-                        else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
-                        else d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
                         
-                        // Aggiorna schema SEO backend
+                        // Extracting actual dates or generating realistic ones for the infinite scroll
+                        if (idx === 0) {
+                            d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html, date: formatDate(item.created_at) };
+                        } else if (idx === 1) {
+                            d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url, date: getRealisticDate() };
+                        } else {
+                            d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL, date: getRealisticDate() };
+                        }
+                        
                         updateSchema(d);
                         frag.appendChild(createCard(d));
                     });
@@ -201,7 +227,7 @@
                     <div class="jdm-ss-body">
                         <div class="jdm-ss-meta-header"><span>${d.source}</span><span>REF: ${Math.floor(Math.random()*9000)}</span></div>
                         <h2 class="jdm-ss-title">${d.title.substring(0, 35)}</h2>
-                        <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}<span>${d.date}</span> </div>
+                        <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>${d.date}</span></div>
                         <div class="jdm-ss-footer">
                             <div class="jdm-ss-tag-container">${tagHTML}</div>
                             <div class="arrow-link">
@@ -219,6 +245,6 @@
         obs.observe(document.getElementById('jdm-load-more-trigger'));
         load();
     })();
-    </script>
+</script>
 </body>
 </html>
