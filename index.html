@@ -107,9 +107,35 @@
         .narrow { grid-column: span 4; }
 
         @media (max-width: 1024px) { [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } }
+    /* LOADER FULL PAGE */
+#jdm-page-loader{
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    transition:opacity 0.6s ease;
+}
+
+.jdm-loader-text{
+    color:#FFFF00;
+    font-family:'Monument Extended', sans-serif;
+    font-size:20px;
+    letter-spacing:2px;
+}
+
+#jdm-page-loader.hide{
+    opacity:0;
+    pointer-events:none;
+}
     </style>
 </head>
 <body>
+    <div id="jdm-page-loader">
+  <div class="jdm-loader-text">LOADING VISUAL</div>
+</div>
     <div id="ottani-archive-root">
         <header class="bt-magazine-header">
             <div class="bt-brand-stack">
@@ -244,6 +270,14 @@
         const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
         obs.observe(document.getElementById('jdm-load-more-trigger'));
         load();
+        // 👇 INCOLLA QUESTO QUI SOTTO
+setTimeout(() => {
+    const loader = document.getElementById('jdm-page-loader');
+    if(loader){
+        loader.classList.add('hide');
+        setTimeout(()=>loader.remove(), 600);
+    }
+}, 800);
     })();
 </script>
 </body>
