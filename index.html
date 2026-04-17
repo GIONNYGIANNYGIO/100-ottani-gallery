@@ -3,24 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Gallery Archive | 100 Ottani Please!™ | JDM & Racing Culture</title>
-    <meta name="description" content="Explore the 100 Ottani Please!™ visual archive. A real-time collection of JDM culture, extreme tuning, and global street racing documentation.">
-    <link rel="canonical" href="https://100ottaniplease.com/gallery" />
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org/",
-      "@type": "ImageGallery",
-      "name": "100 Ottani Please!™ Visual Archive",
-      "description": "Continuous photographic archive of global JDM and tuning culture.",
-      "sourceOrganization": {
-        "@type": "Organization",
-        "name": "100 Ottani Please!™"
-      }
-    }
-    </script>
-
+    <title>Gallery Archive | 100 Ottani Please!™</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
         @font-face {
@@ -36,7 +19,6 @@
             overflow-x: hidden;
             font-family: 'JetBrains Mono', monospace;
             -webkit-font-smoothing: antialiased;
-            scroll-behavior: smooth;
         }
 
         #ottani-archive-root {
@@ -48,7 +30,7 @@
 
         @media (max-width: 768px) { #ottani-archive-root { padding: 0 15px; } }
 
-        /* HEADER ORIGINALE */
+        /* HEADER MAGAZINE */
         .bt-magazine-header { padding: 100px 0 40px; display: flex; flex-direction: column; }
         .bt-brand-stack { width: 100%; margin-bottom: 40px; overflow: hidden; }
         .bt-title-main, .bt-title-outline { 
@@ -66,21 +48,16 @@
         }
         .bt-editorial-text b { color: var(--accent); font-weight: 800; }
 
-        /* GRID */
+        /* GRID & CARDS */
         .jdm-ss-mosaic { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 300px; gap: 15px; } 
-
-        /* CARDS */
         .jdm-ss-card {
             background: #000; border: 1px solid rgba(255, 255, 255, 0.08);
             text-decoration: none; display: flex; flex-direction: column;
             transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); position: relative; overflow: hidden;
         }
         .jdm-ss-card:hover { border-color: var(--accent); z-index: 10; }
-        .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; background: #000; }
-        .jdm-ss-media img { 
-            width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); 
-            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-        }
+        .jdm-ss-media { width: 100%; height: 100%; overflow: hidden; }
+        .jdm-ss-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
 
         .jdm-ss-body {
             position: absolute; bottom: 0; left: 0; width: 100%;
@@ -91,26 +68,19 @@
         .jdm-ss-card:hover .jdm-ss-body { transform: translateY(0); opacity: 1; }
         .jdm-ss-card:hover img { filter: brightness(0.3) grayscale(1); transform: scale(1.05); }
 
+        /* INFO & FOOTER */
         .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 6px; }
         .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; }
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
-        
-        /* FOOTER & DYNAMIC ARROW */
-        .jdm-ss-footer { 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; 
-        }
-        .jdm-ss-view-btn {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase;
-        }
-        .arrow-svg {
-            width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .jdm-ss-card:hover .arrow-svg { transform: rotate(-45deg) translate(2px, -2px); }
+        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
 
-        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-right: 6px; }
+        /* FRECCIA DINAMICA RICHIESTA */
+        .arrow-link { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 900; color: #555; transition: 0.3s; }
+        .arrow-icon { width: 14px; height: 14px; stroke: currentColor; stroke-width: 3; fill: none; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+        .jdm-ss-card:hover .arrow-link { color: var(--accent); }
+        .jdm-ss-card:hover .arrow-icon { transform: translate(4px, -4px); }
+
+        .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
         .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
 
@@ -119,132 +89,87 @@
         .narrow { grid-column: span 4; }
 
         @media (max-width: 1024px) { 
-            .jdm-ss-mosaic { grid-auto-rows: 350px; }
             [class*="wide"], [class*="narrow"], [class*="full"] { grid-column: span 12 !important; } 
-            .bt-magazine-header { padding-top: 50px; }
         }
     </style>
 </head>
 <body>
-
-<div id="ottani-archive-root">
-    <header class="bt-magazine-header">
-        <div class="bt-brand-stack">
-            <h1 class="bt-title-main">GALLERY</h1>
-            <h1 class="bt-title-outline">ARCHIVE</h1>
-        </div>
-        <div class="bt-full-divider"></div>
-        <p class="bt-editorial-text">
-            CURATED <b>JDM VISUAL ARCHIVE</b>, EXPLORING GLOBAL <b>CAR CULTURE</b><br>
-            THROUGH CONTINUOUS <b>AUTOMOTIVE DOCUMENTATION</b>.
-        </p>
-    </header>
-
-    <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
-    
-    <div id="jdm-load-more-trigger" style="height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
-        <span style="font-size: 8px; color: #333; letter-spacing: 4px; font-weight: 800;">SCANNING GLOBAL DATABASE...</span>
-        <div style="width: 20px; height: 1px; background: #222;"></div>
+    <div id="ottani-archive-root">
+        <header class="bt-magazine-header">
+            <div class="bt-brand-stack">
+                <h1 class="bt-title-main">GALLERY</h1>
+                <h1 class="bt-title-outline">ARCHIVE</h1>
+            </div>
+            <div class="bt-full-divider"></div>
+            <p class="bt-editorial-text">CURATED <b>JDM VISUAL ARCHIVE</b>, EXPLORING GLOBAL <b>CAR CULTURE</b></p>
+        </header>
+        <main class="jdm-ss-mosaic" id="jdm-engine-grid"></main>
+        <div id="jdm-load-more-trigger" style="height: 100px;"></div>
     </div>
-</div>
 
-<script>
-(function() {
-    const KEYS = { 
-        U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", 
-        P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
-        PX: "55464526-8c1ed1d759c73669d0c1f38ab"
-    };
-    
-    let page = 1, fetching = false, counter = 0;
-    const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
-    const patternB = [...patternA].reverse();
+    <script>
+    (function() {
+        const KEYS = { U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD", PX: "55464526-8c1ed1d759c73669d0c1f38ab" };
+        let page = 1, fetching = false, counter = 0;
+        const patternA = ['full', 'wide', 'narrow', 'narrow', 'wide', 'full', 'wide', 'narrow', 'narrow', 'wide'];
+        const patternB = [...patternA].reverse();
 
-    function generateTags(str) {
-        if (!str) return ['#JDM', '#CORE'];
-        const stop = ['A', 'THE', 'OF', 'IN', 'WITH', 'AND', 'PHOTO', 'IMAGE', 'SOME', 'CAR', 'CARS'];
-        return str.toUpperCase().replace(/[^A-Z\s]/g, '').split(' ')
-            .filter(w => w.length > 3 && !stop.includes(w)).slice(0, 3).map(w => `#${w}`);
-    }
+        async function load() {
+            if (fetching) return; fetching = true;
+            try {
+                const q = "jdm tuning night street";
+                const res = await Promise.allSettled([
+                    fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&per_page=8&client_id=${KEYS.U}`).then(r => r.json()),
+                    fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=8&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json()),
+                    fetch(`https://pixabay.com/api/?key=${KEYS.PX}&q=${encodeURIComponent(q)}&page=${page}&per_page=8`).then(r => r.json())
+                ]);
 
-    // Funzione per inviare l'altezza al genitore (Fourthwall)
-    function notifyResize() {
-        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
-    }
-
-    async function load() {
-        if (fetching) return; fetching = true;
-        const q = "jdm performance tuning cars street night";
-        
-        try {
-            const res = await Promise.allSettled([
-                fetch(`https://api.unsplash.com/search/photos?page=${page}&query=${q}&per_page=8&client_id=${KEYS.U}`).then(r => r.json()),
-                fetch(`https://api.pexels.com/v1/search?query=${q}&per_page=8&page=${page}`, {headers:{Authorization:KEYS.P}}).then(r => r.json()),
-                fetch(`https://pixabay.com/api/?key=${KEYS.PX}&q=${encodeURIComponent(q)}&image_type=photo&page=${page}&per_page=8`).then(r => r.json())
-            ]);
-
-            const grid = document.getElementById('jdm-engine-grid');
-            
-            res.forEach((r, idx) => {
-                if (r.status !== 'fulfilled') return;
-                let items = [];
-                if (idx === 0) items = r.value.results || []; 
-                if (idx === 1) items = r.value.photos || [];  
-                if (idx === 2) items = r.value.hits || [];    
-
-                items.forEach(item => {
-                    let d = { source: 'UNSPLASH', title: '', author: '', img: '', url: '', tags: [] };
-                    if (idx === 0) {
-                        d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
-                    } else if (idx === 1) {
-                        d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
-                    } else {
-                        d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
-                    }
-                    d.tags = generateTags(d.title);
-                    grid.appendChild(createCard(d));
+                const grid = document.getElementById('jdm-engine-grid');
+                res.forEach((r, idx) => {
+                    if (r.status !== 'fulfilled') return;
+                    let items = (idx === 0) ? r.value.results : (idx === 1) ? r.value.photos : r.value.hits;
+                    (items || []).forEach(item => {
+                        let d = {};
+                        if (idx === 0) d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
+                        else if (idx === 1) d = { source: 'PEXELS', title: item.alt || "STREET RACING", author: item.photographer, img: item.src.large, url: item.url };
+                        else d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
+                        grid.appendChild(createCard(d));
+                    });
                 });
-            });
-            page++;
-            setTimeout(notifyResize, 500); // Notifica l'altezza dopo il caricamento
-        } catch (err) { console.error("Fetch error:", err); } 
-        finally { fetching = false; }
-    }
+                page++;
+                window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+            } catch (e) {} finally { fetching = false; }
+        }
 
-    function createCard(d) {
-        const pattern = (Math.floor(counter / 10) % 2 === 0) ? patternA : patternB;
-        const style = pattern[counter % 10];
-        counter++;
-
-        const article = document.createElement('article');
-        article.className = `jdm-ss-card ${style}`;
-        article.innerHTML = `
-            <a href="${d.url}" target="_blank" rel="noopener" style="text-decoration:none; color:inherit; display:block; height:100%;">
-                <div class="jdm-ss-media">
-                    <img src="${d.img}" alt="${d.title}" loading="lazy" onload="this.style.opacity=1">
-                </div>
-                <div class="jdm-ss-body">
-                    <div class="jdm-ss-meta-header"><span>${d.source}</span><span>REF: ${Math.floor(Math.random()*9000)}</span></div>
-                    <h2 class="jdm-ss-title">${d.title.substring(0, 40)}</h2>
-                    <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>04/17/2026</span></div>
-                    <div class="jdm-ss-footer">
-                        <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
-                        <div class="jdm-ss-view-btn">
-                            VIEW <svg class="arrow-svg" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>
+        function createCard(d) {
+            const style = (Math.floor(counter / 10) % 2 === 0 ? patternA : patternB)[counter % 10];
+            counter++;
+            const article = document.createElement('article');
+            article.className = `jdm-ss-card ${style}`;
+            article.innerHTML = `
+                <a href="${d.url}" target="_blank" style="text-decoration:none; color:inherit; display:block; height:100%;">
+                    <div class="jdm-ss-media"><img src="${d.img}" loading="lazy"></div>
+                    <div class="jdm-ss-body">
+                        <div class="jdm-ss-meta-header"><span>${d.source}</span><span>REF: ${Math.floor(Math.random()*9000)}</span></div>
+                        <h2 class="jdm-ss-title">${d.title.substring(0, 35)}</h2>
+                        <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>04/17/2026</span></div>
+                        <div class="jdm-ss-footer">
+                            <span class="jdm-ss-tag">#JDM_CORE</span>
+                            <div class="arrow-link">
+                                <span>VIEW</span>
+                                <svg class="arrow-icon" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            </div>
                         </div>
+                        <div class="jdm-ss-bar"></div>
                     </div>
-                    <div class="jdm-ss-bar"></div>
-                </div>
-            </a>`;
-        return article;
-    }
+                </a>`;
+            return article;
+        }
 
-    const observer = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
-    observer.observe(document.getElementById('jdm-load-more-trigger'));
-    
-    window.addEventListener('resize', notifyResize);
-    load();
-})();
-</script>
+        const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
+        obs.observe(document.getElementById('jdm-load-more-trigger'));
+        load();
+    })();
+    </script>
 </body>
 </html>
