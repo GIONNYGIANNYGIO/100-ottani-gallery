@@ -48,7 +48,7 @@
 
         @media (max-width: 768px) { #ottani-archive-root { padding: 0 15px; } }
 
-        /* HEADER */
+        /* HEADER ORIGINALE */
         .bt-magazine-header { padding: 100px 0 40px; display: flex; flex-direction: column; }
         .bt-brand-stack { width: 100%; margin-bottom: 40px; overflow: hidden; }
         .bt-title-main, .bt-title-outline { 
@@ -94,7 +94,22 @@
         .jdm-ss-meta-header { display: flex; justify-content: space-between; font-size: 8px; color: #555; text-transform: uppercase; margin-bottom: 6px; }
         .jdm-ss-title { font-family: 'Monument Extended', sans-serif !important; font-size: 10px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1.2; }
         .jdm-ss-info-row { display: flex; justify-content: space-between; font-size: 8px; color: #777; text-transform: uppercase; margin: 10px 0; }
-        .jdm-ss-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+        
+        /* FOOTER & DYNAMIC ARROW */
+        .jdm-ss-footer { 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; 
+        }
+        .jdm-ss-view-btn {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase;
+        }
+        .arrow-svg {
+            width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .jdm-ss-card:hover .arrow-svg { transform: rotate(-45deg) translate(2px, -2px); }
+
         .jdm-ss-tag { font-size: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-right: 6px; }
         .jdm-ss-bar { position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--accent); transition: 0.5s; }
         .jdm-ss-card:hover .jdm-ss-bar { width: 100%; }
@@ -135,7 +150,6 @@
 
 <script>
 (function() {
-    // API KEYS - Pixabay aggiunta
     const KEYS = { 
         U: "1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA", 
         P: "2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD",
@@ -151,6 +165,11 @@
         const stop = ['A', 'THE', 'OF', 'IN', 'WITH', 'AND', 'PHOTO', 'IMAGE', 'SOME', 'CAR', 'CARS'];
         return str.toUpperCase().replace(/[^A-Z\s]/g, '').split(' ')
             .filter(w => w.length > 3 && !stop.includes(w)).slice(0, 3).map(w => `#${w}`);
+    }
+
+    // Funzione per inviare l'altezza al genitore (Fourthwall)
+    function notifyResize() {
+        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
     }
 
     async function load() {
@@ -169,14 +188,12 @@
             res.forEach((r, idx) => {
                 if (r.status !== 'fulfilled') return;
                 let items = [];
-                
-                if (idx === 0) items = r.value.results || []; // Unsplash
-                if (idx === 1) items = r.value.photos || [];  // Pexels
-                if (idx === 2) items = r.value.hits || [];    // Pixabay
+                if (idx === 0) items = r.value.results || []; 
+                if (idx === 1) items = r.value.photos || [];  
+                if (idx === 2) items = r.value.hits || [];    
 
                 items.forEach(item => {
                     let d = { source: 'UNSPLASH', title: '', author: '', img: '', url: '', tags: [] };
-                    
                     if (idx === 0) {
                         d = { source: 'UNSPLASH', title: item.alt_description || "JDM CULTURE", author: item.user.name, img: item.urls.regular, url: item.links.html };
                     } else if (idx === 1) {
@@ -184,12 +201,12 @@
                     } else {
                         d = { source: 'PIXABAY', title: item.tags || "TUNING ARCHIVE", author: item.user, img: item.webformatURL, url: item.pageURL };
                     }
-                    
                     d.tags = generateTags(d.title);
                     grid.appendChild(createCard(d));
                 });
             });
             page++;
+            setTimeout(notifyResize, 500); // Notifica l'altezza dopo il caricamento
         } catch (err) { console.error("Fetch error:", err); } 
         finally { fetching = false; }
     }
@@ -199,35 +216,33 @@
         const style = pattern[counter % 10];
         counter++;
 
-        const article = document.createElement('article'); // SEO: Article tag
+        const article = document.createElement('article');
         article.className = `jdm-ss-card ${style}`;
-        
         article.innerHTML = `
             <a href="${d.url}" target="_blank" rel="noopener" style="text-decoration:none; color:inherit; display:block; height:100%;">
                 <div class="jdm-ss-media">
-                    <img src="${d.img}" alt="${d.title} - 100 Ottani Please! Archive" loading="lazy">
+                    <img src="${d.img}" alt="${d.title}" loading="lazy" onload="this.style.opacity=1">
                 </div>
                 <div class="jdm-ss-body">
-                    <div class="jdm-ss-meta-header"><span>${d.source}</span><span>DATABASE REF: ${Math.floor(Math.random()*9000)}</span></div>
+                    <div class="jdm-ss-meta-header"><span>${d.source}</span><span>REF: ${Math.floor(Math.random()*9000)}</span></div>
                     <h2 class="jdm-ss-title">${d.title.substring(0, 40)}</h2>
                     <div class="jdm-ss-info-row"><span>AUTH: ${d.author.substring(0, 15)}</span><span>04/17/2026</span></div>
                     <div class="jdm-ss-footer">
                         <div class="jdm-ss-tags">${d.tags.map(t => `<span class="jdm-ss-tag">${t}</span>`).join('')}</div>
+                        <div class="jdm-ss-view-btn">
+                            VIEW <svg class="arrow-svg" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>
+                        </div>
                     </div>
                     <div class="jdm-ss-bar"></div>
                 </div>
-            </a>
-        `;
+            </a>`;
         return article;
     }
 
     const observer = new IntersectionObserver(e => { if(e[0].isIntersecting) load(); }, { rootMargin: '400px' });
     observer.observe(document.getElementById('jdm-load-more-trigger'));
     
-    // Sync height for Fourthwall
-    window.addEventListener('resize', () => {
-        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
-    });
+    window.addEventListener('resize', notifyResize);
     load();
 })();
 </script>
