@@ -1,38 +1,50 @@
-name: Auto Update Home Gallery
+name: Auto Home Gallery
 
 on:
+  schedule:
+    - cron: '*/30 * * * *' # ogni 30 minuti
   workflow_dispatch:
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Fetch RAW HTML
-        run: curl -L https://100ottaniplease.com/pages/visual > page.html
-
-      - name: Debug HTML
-        run: head -100 page.html
-
-      - name: Extract REAL images (fallback)
+      - name: Fetch images from APIs
         run: |
-          grep -o 'https://[^"]*\.\(jpg\|jpeg\|png\)' page.html | head -10 > imgs.txt
+          curl "https://api.unsplash.com/search/photos?query=jdm+car+night&per_page=5&client_id=1yLiYWVhE_HAY7MxFPGo3B4-9WfzmWj1R-VPaBTbNVA" > unsplash.json
+          curl -H "Authorization: 2xbI4WF3YWnE66DEPr6gEJCNh4iuMyknemXRxw8WAanVE3kSMflm0KmD" "https://api.pexels.com/v1/search?query=jdm+car+night&per_page=5" > pexels.json
 
-      - name: Build JSON
+      - name: Merge JSON
         run: |
-          echo "[" > home-gallery.json
-          while read url; do
-            echo "  {\"img\":\"$url\",\"title\":\"JDM\",\"date\":\"$(date +%F)\",\"url\":\"$url\"}," >> home-gallery.json
-          done < imgs.txt
-          sed -i '$ s/,$//' home-gallery.json
-          echo "]" >> home-gallery.json
+          node -e "
+          const fs = require('fs');
 
-      - name: Commit
+          const u = JSON.parse(fs.readFileSync('unsplash.json')).results || [];
+          const p = JSON.parse(fs.readFileSync('pexels.json')).photos || [];
+
+          const data = [];
+
+          u.forEach(i => data.push({
+            img: i.urls.regular,
+            url: i.links.html
+          }));
+
+          p.forEach(i => data.push({
+            img: i.src.large,
+            url: i.url
+          }));
+
+          fs.writeFileSync('home-gallery.json', JSON.stringify(data.slice(0,10), null, 2));
+          "
+
+      - name: Commit changes
         run: |
-          git config --global user.name "bot"
-          git config --global user.email "bot@github.com"
+          git config user.name "bot"
+          git config user.email "bot@github.com"
           git add home-gallery.json
-          git commit -m "auto update" || echo "no changes"
+          git commit -m "auto update gallery" || exit 0
           git push
