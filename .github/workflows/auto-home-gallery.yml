@@ -1,8 +1,6 @@
 name: Auto Update Home Gallery
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,12 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Fetch page
+      - name: Fetch RAW HTML
         run: curl -L https://100ottaniplease.com/pages/visual > page.html
 
-      - name: Extract images
+      - name: Debug HTML
+        run: head -100 page.html
+
+      - name: Extract REAL images (fallback)
         run: |
-          grep -o '<img[^>]*src="[^"]*"' page.html | sed 's/.*src="//;s/"$//' | head -10 > imgs.txt
+          grep -o 'https://[^"]*\.\(jpg\|jpeg\|png\)' page.html | head -10 > imgs.txt
 
       - name: Build JSON
         run: |
