@@ -1,0 +1,37 @@
+name: Auto Update Home Gallery
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Fetch page
+        run: curl -L https://100ottaniplease.com/pages/visual > page.html
+
+      - name: Extract images
+        run: |
+          grep -o '<img[^>]*src="[^"]*"' page.html | sed 's/.*src="//;s/"$//' | head -10 > imgs.txt
+
+      - name: Build JSON
+        run: |
+          echo "[" > home-gallery.json
+          while read url; do
+            echo "  {\"img\":\"$url\",\"title\":\"JDM\",\"date\":\"$(date +%F)\",\"url\":\"$url\"}," >> home-gallery.json
+          done < imgs.txt
+          sed -i '$ s/,$//' home-gallery.json
+          echo "]" >> home-gallery.json
+
+      - name: Commit
+        run: |
+          git config --global user.name "bot"
+          git config --global user.email "bot@github.com"
+          git add home-gallery.json
+          git commit -m "auto update" || echo "no changes"
+          git push
